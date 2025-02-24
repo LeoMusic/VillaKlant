@@ -3,8 +3,10 @@ define('SECURE', true);
 include '../config/db_connect.php';
 include '../includes/header.php';
 
-$sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer, email, functie, bedrijfsnaam, notities FROM klanten JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id";
-$result = $conn->query($sql);
+// Voorbereiden van een SQL statement
+$stmt = $conn->prepare("SELECT klanten.id, voornaam, achternaam, telefoonnummer, email, functie, bedrijfsnaam, notities FROM klanten JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id");
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <h1 class="mt-5">Klanten bekijken</h1>
@@ -37,6 +39,7 @@ $result = $conn->query($sql);
         } else {
             echo "<tr><td colspan='7'>0 results</td></tr>";
         }
+        $stmt->close();
         $conn->close();
         ?>
     </tbody>

@@ -15,17 +15,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $bedrijf_id = $_POST['bedrijf_id'];
     $notities = $_POST['notities'];
 
-    $sql = "UPDATE klanten SET voornaam='$voornaam', achternaam='$achternaam', telefoonnummer='$telefoonnummer', email='$email', functie='$functie', bedrijf_id='$bedrijf_id', notities='$notities' WHERE id=$id";
+    // Voorbereiden van een SQL statement
+    $stmt = $conn->prepare("UPDATE klanten SET voornaam=?, achternaam=?, telefoonnummer=?, email=?, functie=?, bedrijf_id=?, notities=? WHERE id=?");
+    $stmt->bind_param("sssssis", $voornaam, $achternaam, $telefoonnummer, $email, $functie, $bedrijf_id, $notities, $id);
 
-    if ($conn->query($sql) === TRUE) {
+    // Uitvoeren van het statement
+    if ($stmt->execute() === TRUE) {
         echo "<div class='alert alert-success mt-3'>Record updated successfully</div>";
     } else {
-        echo "<div class='alert alert-danger mt-3'>Error updating record: " . $conn->error . "</div>";
+        echo "<div class='alert alert-danger mt-3'>Error updating record: " . $stmt->error . "</div>";
     }
 
+    // Sluiten van het statement
+    $stmt->close();
+
     // Haal de bijgewerkte klantgegevens opnieuw op
-    $sql = "SELECT * FROM klanten WHERE id=$id";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT * FROM klanten WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $klant = $result->fetch_assoc();
@@ -33,11 +41,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<div class='alert alert-danger mt-3'>Klant niet gevonden</div>";
         exit;
     }
+
+    // Sluiten van het statement
+    $stmt->close();
 } else {
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
-        $sql = "SELECT * FROM klanten WHERE id=$id";
-        $result = $conn->query($sql);
+        $stmt = $conn->prepare("SELECT * FROM klanten WHERE id=?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
             $klant = $result->fetch_assoc();
@@ -45,6 +58,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<div class='alert alert-danger mt-3'>Klant niet gevonden</div>";
             exit;
         }
+
+        // Sluiten van het statement
+        $stmt->close();
     } else {
         echo "<div class='alert alert-danger mt-3'>Geen klant ID opgegeven</div>";
         exit;

@@ -15,17 +15,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $land = $_POST['land'];
     $email_facturen = $_POST['email_facturen'];
 
-    $sql = "UPDATE bedrijven SET bedrijfsnaam='$bedrijfsnaam', straat='$straat', huisnummer='$huisnummer', postcode='$postcode', woonplaats='$woonplaats', land='$land', email_facturen='$email_facturen' WHERE id=$id";
+    // Voorbereiden van een SQL statement
+    $stmt = $conn->prepare("UPDATE bedrijven SET bedrijfsnaam=?, straat=?, huisnummer=?, postcode=?, woonplaats=?, land=?, email_facturen=? WHERE id=?");
+    $stmt->bind_param("sssssssi", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $id);
 
-    if ($conn->query($sql) === TRUE) {
+    // Uitvoeren van het statement
+    if ($stmt->execute() === TRUE) {
         echo "<div class='alert alert-success mt-3'>Record updated successfully</div>";
     } else {
-        echo "<div class='alert alert-danger mt-3'>Error updating record: " . $conn->error . "</div>";
+        echo "<div class='alert alert-danger mt-3'>Error updating record: " . $stmt->error . "</div>";
     }
 
+    // Sluiten van het statement
+    $stmt->close();
+
     // Haal de bijgewerkte bedrijfsgegevens opnieuw op
-    $sql = "SELECT * FROM bedrijven WHERE id=$id";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT * FROM bedrijven WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $bedrijf = $result->fetch_assoc();
@@ -33,11 +41,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<div class='alert alert-danger mt-3'>Bedrijf niet gevonden</div>";
         exit;
     }
+
+    // Sluiten van het statement
+    $stmt->close();
 } else {
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
-        $sql = "SELECT * FROM bedrijven WHERE id=$id";
-        $result = $conn->query($sql);
+        $stmt = $conn->prepare("SELECT * FROM bedrijven WHERE id=?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
             $bedrijf = $result->fetch_assoc();
@@ -45,6 +58,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<div class='alert alert-danger mt-3'>Bedrijf niet gevonden</div>";
             exit;
         }
+
+        // Sluiten van het statement
+        $stmt->close();
     } else {
         echo "<div class='alert alert-danger mt-3'>Geen bedrijf ID opgegeven</div>";
         exit;

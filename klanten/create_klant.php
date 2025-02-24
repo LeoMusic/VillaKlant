@@ -18,13 +18,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $functie = $nieuwe_functie;
     }
 
-    $sql = "INSERT INTO klanten (voornaam, achternaam, telefoonnummer, email, functie, bedrijf_id, notities) VALUES ('$voornaam', '$achternaam', '$telefoonnummer', '$email', '$functie', '$bedrijf_id', '$notities')";
+    // Voorbereiden van een SQL statement
+    $stmt = $conn->prepare("INSERT INTO klanten (voornaam, achternaam, telefoonnummer, email, functie, bedrijf_id, notities) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssis", $voornaam, $achternaam, $telefoonnummer, $email, $functie, $bedrijf_id, $notities);
 
-    if ($conn->query($sql) === TRUE) {
+    // Uitvoeren van het statement
+    if ($stmt->execute() === TRUE) {
         echo "<div class='alert alert-success mt-3'>New record created successfully</div>";
     } else {
-        echo "<div class='alert alert-danger mt-3'>Error: " . $sql . "<br>" . $conn->error . "</div>";
+        echo "<div class='alert alert-danger mt-3'>Error: " . $stmt->error . "</div>";
     }
+
+    // Sluiten van het statement
+    $stmt->close();
 }
 
 // Haal de lijst van bedrijven op

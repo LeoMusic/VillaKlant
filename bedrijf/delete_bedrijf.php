@@ -6,14 +6,19 @@ include '../includes/header.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = $_POST['id'];
 
-    $sql = "DELETE FROM bedrijven WHERE id=$id";
+    // Voorbereiden van een SQL statement
+    $stmt = $conn->prepare("DELETE FROM bedrijven WHERE id = ?");
+    $stmt->bind_param("i", $id);
 
-    if ($conn->query($sql) === TRUE) {
-        echo "<div class='alert alert-success mt-3'>Record deleted successfully</div>";
+    // Uitvoeren van het statement
+    if ($stmt->execute() === TRUE) {
+        echo "<div class='alert alert-success mt-3'>Record succesvol verwijderd</div>";
     } else {
-        echo "<div class='alert alert-danger mt-3'>Error deleting record: " . $conn->error . "</div>";
+        echo "<div class='alert alert-danger mt-3'>Fout bij het verwijderen van record: " . $stmt->error . "</div>";
     }
 
+    // Sluiten van het statement en de verbinding
+    $stmt->close();
     $conn->close();
 }
 ?>

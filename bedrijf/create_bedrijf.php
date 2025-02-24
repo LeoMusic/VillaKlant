@@ -12,14 +12,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $land = $_POST['land'];
     $email_facturen = $_POST['email_facturen'];
 
-    $sql = "INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen) VALUES ('$bedrijfsnaam', '$straat', '$huisnummer', '$postcode', '$woonplaats', '$land', '$email_facturen')";
+    // Voorbereiden van een SQL statement
+    $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssss", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen);
 
-    if ($conn->query($sql) === TRUE) {
-        echo "<div class='alert alert-success mt-3'>New company created successfully</div>";
+    // Uitvoeren van het statement
+    if ($stmt->execute() === TRUE) {
+        echo "<div class='alert alert-success mt-3'>Nieuw bedrijf succesvol aangemaakt</div>";
     } else {
-        echo "<div class='alert alert-danger mt-3'>Error: " . $sql . "<br>" . $conn->error . "</div>";
+        echo "<div class='alert alert-danger mt-3'>Fout: " . $stmt->error . "</div>";
     }
 
+    // Sluiten van het statement en de verbinding
+    $stmt->close();
     $conn->close();
 }
 

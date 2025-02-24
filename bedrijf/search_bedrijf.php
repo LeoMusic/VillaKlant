@@ -9,15 +9,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $search_term = $_POST['search_term'];
     $search_type = $_POST['search_type'];
 
-    $sql = "SELECT * FROM bedrijven WHERE $search_type LIKE '%$search_term%'";
+    // Voorbereiden van een SQL statement
+    $stmt = $conn->prepare("SELECT * FROM bedrijven WHERE $search_type LIKE ?");
+    $like_search_term = "%$search_term%";
+    $stmt->bind_param("s", $like_search_term);
 
-    $result = $conn->query($sql);
+    // Uitvoeren van het statement
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
             $search_results[] = $row;
         }
     }
+
+    // Sluiten van het statement
+    $stmt->close();
 }
 ?>
 
@@ -69,8 +77,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <h5>Contacten bij dit bedrijf:</h5>
                         <?php
                         $bedrijf_id = $row['id'];
-                        $klanten_sql = "SELECT voornaam, achternaam, telefoonnummer, email, functie FROM klanten WHERE bedrijf_id = $bedrijf_id";
-                        $klanten_result = $conn->query($klanten_sql);
+                        $klanten_stmt = $conn->prepare("SELECT voornaam, achternaam, telefoonnummer, email, functie FROM klanten WHERE bedrijf_id = ?");
+                        $klanten_stmt->bind_param("i", $bedrijf_id);
+                        $klanten_stmt->execute();
+                        $klanten_result = $klanten_stmt->get_result();
 
                         if ($klanten_result->num_rows > 0): ?>
                             <ul class="list-group">
@@ -83,6 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <?php else: ?>
                             <p>Geen klanten gevonden.</p>
                         <?php endif; ?>
+                        <?php $klanten_stmt->close(); ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

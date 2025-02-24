@@ -13,21 +13,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer, email, functie, bedrijfsnaam, notities 
                 FROM klanten 
                 JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
-                WHERE voornaam LIKE '%$search_term%' OR achternaam LIKE '%$search_term%'";
+                WHERE voornaam LIKE ? OR achternaam LIKE ?";
+        $like_search_term = "%$search_term%";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $like_search_term, $like_search_term);
     } else {
         $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer, email, functie, bedrijfsnaam, notities 
                 FROM klanten 
                 JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
-                WHERE $search_type LIKE '%$search_term%'";
+                WHERE $search_type LIKE ?";
+        $like_search_term = "%$search_term%";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $like_search_term);
     }
 
-    $result = $conn->query($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
             $search_results[] = $row;
         }
     }
+
+    $stmt->close();
 }
 ?>
 
