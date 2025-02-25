@@ -40,23 +40,32 @@ $bedrijven_result = $conn->query("SELECT id, bedrijfsnaam FROM bedrijven");
 $functies_result = $conn->query("SELECT DISTINCT functie FROM klanten");
 ?>
 
+<div class="container mt-3">
+    <h2>Prikbord</h2>
+    <textarea class="form-control" placeholder="Ruimte om even gegevens te plakken. Ctrl + V... deze info wordt niet bewaard!" style="width: 1000px; height: 200px;"></textarea>
+</div>
+
 <h1 class="mt-5">Klant toevoegen</h1>
 <form method="post" action="create_klant.php">
-    <div class="mb-3">
-        <label for="voornaam" class="form-label">Voornaam</label>
-        <input type="text" class="form-control" id="voornaam" name="voornaam" required>
+    <div class="row mb-3">
+        <div class="col">
+            <label for="voornaam" class="form-label">Voornaam</label>
+            <input type="text" class="form-control" id="voornaam" name="voornaam" required>
+        </div>
+        <div class="col">
+            <label for="achternaam" class="form-label">Achternaam</label>
+            <input type="text" class="form-control" id="achternaam" name="achternaam" required>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="achternaam" class="form-label">Achternaam</label>
-        <input type="text" class="form-control" id="achternaam" name="achternaam" required>
-    </div>
-    <div class="mb-3">
-        <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
-        <input type="text" class="form-control" id="telefoonnummer" name="telefoonnummer" required>
-    </div>
-    <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" class="form-control" id="email" name="email" required>
+    <div class="row mb-3">
+        <div class="col">
+            <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
+            <input type="text" class="form-control" id="telefoonnummer" name="telefoonnummer" required>
+        </div>
+        <div class="col">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
     </div>
     <div class="mb-3">
         <label for="functie" class="form-label">Functie</label>
