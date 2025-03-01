@@ -4,7 +4,7 @@ include '../config/db_connect.php';
 include '../includes/header.php';
 
 // Voorbereiden van een SQL statement
-$stmt = $conn->prepare("SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie, bedrijfsnaam, notities FROM klanten JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id");
+$stmt = $conn->prepare("SELECT klanten.id, voornaam, achternaam, telefoonnummer, email, functie, bedrijfsnaam, notities FROM klanten JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id");
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
@@ -15,8 +15,7 @@ $result = $stmt->get_result();
         <tr>
             <th>ID</th>
             <th>Naam</th>
-            <th>Telefoonnummer Mobiel</th>
-            <th>Telefoonnummer Vast</th>
+            <th>Telefoonnummer</th>
             <th>Email</th>
             <th>Functie</th>
             <th>Bedrijf</th>
@@ -30,8 +29,7 @@ $result = $stmt->get_result();
                 echo "<tr>
                         <td>" . $row["id"]. "</td>
                         <td><a href='update_klant.php?id=" . $row["id"] . "'>" . $row["voornaam"]. " " . $row["achternaam"]. "</a></td>
-                        <td>" . $row["telefoonnummer_mobiel"]. "</td>
-                        <td>" . $row["telefoonnummer_vast"]. "</td>
+                        <td>" . $row["telefoonnummer"]. "</td>
                         <td>" . $row["email"]. "</td>
                         <td>" . $row["functie"]. "</td>
                         <td>" . $row["bedrijfsnaam"]. "</td>
@@ -39,7 +37,7 @@ $result = $stmt->get_result();
                       </tr>";
             }
         } else {
-            echo "<tr><td colspan='8'>0 results</td></tr>";
+            echo "<tr><td colspan='7'>0 results</td></tr>";
         }
         $stmt->close();
         $conn->close();
