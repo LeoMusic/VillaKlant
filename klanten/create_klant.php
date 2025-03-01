@@ -6,7 +6,8 @@ include '../includes/header.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $voornaam = $_POST['voornaam'];
     $achternaam = $_POST['achternaam'];
-    $telefoonnummer = $_POST['telefoonnummer'];
+    $telefoonnummer_mobiel = $_POST['telefoonnummer_mobiel'];
+    $telefoonnummer_vast = $_POST['telefoonnummer_vast'];
     $email = $_POST['email'];
     $functie = $_POST['functie'];
     $nieuwe_functie = $_POST['nieuwe_functie'];
@@ -19,8 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Voorbereiden van een SQL statement
-    $stmt = $conn->prepare("INSERT INTO klanten (voornaam, achternaam, telefoonnummer, email, functie, bedrijf_id, notities) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssis", $voornaam, $achternaam, $telefoonnummer, $email, $functie, $bedrijf_id, $notities);
+    $stmt = $conn->prepare("INSERT INTO klanten (voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie, bedrijf_id, notities) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssis", $voornaam, $achternaam, $telefoonnummer_mobiel, $telefoonnummer_vast, $email, $functie, $bedrijf_id, $notities);
 
     // Uitvoeren van het statement
     if ($stmt->execute() === TRUE) {
@@ -59,29 +60,35 @@ $functies_result = $conn->query("SELECT DISTINCT functie FROM klanten");
     </div>
     <div class="row mb-3">
         <div class="col">
-            <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
-            <input type="text" class="form-control" id="telefoonnummer" name="telefoonnummer" required>
+            <label for="telefoonnummer_mobiel" class="form-label">Telefoonnummer Mobiel</label>
+            <input type="text" class="form-control" id="telefoonnummer_mobiel" name="telefoonnummer_mobiel" required>
         </div>
+        <div class="col">
+            <label for="telefoonnummer_vast" class="form-label">Telefoonnummer Vast</label>
+            <input type="text" class="form-control" id="telefoonnummer_vast" name="telefoonnummer_vast">
+        </div>
+    </div>
+    <div class="row mb-3">
         <div class="col">
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" id="email" name="email" required>
         </div>
-    </div>
-    <div class="mb-3">
-        <label for="functie" class="form-label">Functie</label>
-        <div class="input-group">
-            <select class="form-control" id="functie" name="functie">
-                <option value="">Selecteer een functie</option>
-                <?php
-                if ($functies_result->num_rows > 0) {
-                    while($row = $functies_result->fetch_assoc()) {
-                        echo "<option value='" . $row["functie"] . "'>" . $row["functie"] . "</option>";
+        <div class="col">
+            <label for="functie" class="form-label">Functie</label>
+            <div class="input-group">
+                <select class="form-control" id="functie" name="functie">
+                    <option value="">Selecteer een functie</option>
+                    <?php
+                    if ($functies_result->num_rows > 0) {
+                        while($row = $functies_result->fetch_assoc()) {
+                            echo "<option value='" . $row["functie"] . "'>" . $row["functie"] . "</option>";
+                        }
                     }
-                }
-                ?>
-                <option value="other">Nieuwe functie toevoegen</option>
-            </select>
-            <input type="text" class="form-control d-none" id="nieuwe_functie" name="nieuwe_functie" placeholder="Voer nieuwe functie in">
+                    ?>
+                    <option value="other">Nieuwe functie toevoegen</option>
+                </select>
+                <input type="text" class="form-control d-none" id="nieuwe_functie" name="nieuwe_functie" placeholder="Voer nieuwe functie in">
+            </div>
         </div>
     </div>
     <div class="mb-3">

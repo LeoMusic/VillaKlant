@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $search_type = $_POST['search_type'];
 
     if ($search_type == 'naam') {
-        $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer, email, functie, bedrijfsnaam, notities 
+        $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie, bedrijfsnaam, notities 
                 FROM klanten 
                 JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
                 WHERE voornaam LIKE ? OR achternaam LIKE ?";
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $like_search_term, $like_search_term);
     } else {
-        $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer, email, functie, bedrijfsnaam, notities 
+        $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie, bedrijfsnaam, notities 
                 FROM klanten 
                 JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
                 WHERE $search_type LIKE ?";
@@ -51,7 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select class="form-control" id="search_type" name="search_type" required>
             <option value="naam">Naam</option>
             <option value="email">Email</option>
-            <option value="telefoonnummer">Telefoonnummer</option>
+            <option value="telefoonnummer_mobiel">Telefoonnummer Mobiel</option>
+            <option value="telefoonnummer_vast">Telefoonnummer Vast</option>
         </select>
     </div>
     <button type="submit" class="btn btn-primary">Zoeken</button>
@@ -64,7 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <tr>
                 <th>ID</th>
                 <th>Naam</th>
-                <th>Telefoonnummer</th>
+                <th>Telefoonnummer Mobiel</th>
+                <th>Telefoonnummer Vast</th>
                 <th>Email</th>
                 <th>Functie</th>
                 <th>Bedrijf</th>
@@ -77,7 +79,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <tr>
                     <td><?php echo $row["id"]; ?></td>
                     <td><?php echo $row["voornaam"] . " " . $row["achternaam"]; ?></td>
-                    <td><?php echo $row["telefoonnummer"]; ?></td>
+                    <td><?php echo $row["telefoonnummer_mobiel"]; ?></td>
+                    <td><?php echo $row["telefoonnummer_vast"]; ?></td>
                     <td><?php echo $row["email"]; ?></td>
                     <td><?php echo $row["functie"]; ?></td>
                     <td><?php echo $row["bedrijfsnaam"]; ?></td>
