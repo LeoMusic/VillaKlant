@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Gegenereerd op: 01 mrt 2025 om 15:10
+-- Gegenereerd op: 01 mrt 2025 om 17:22
 -- Serverversie: 10.6.20-MariaDB
 -- PHP-versie: 8.1.31
 
@@ -47,7 +47,8 @@ INSERT INTO `bedrijven` (`id`, `bedrijfsnaam`, `straat`, `huisnummer`, `postcode
 (2, 'Villa ProCtrl', 'Perklaan', '20', '9752 GP', 'Haren', 'Nederland', 'invoiceonly@villaproctrl.com'),
 (3, 'NIJM', 'test', '4', '9404KK', 'Assen', 'Estland', 'arjan@nijm.nl'),
 (4, 'Gebr. Wichmann GmbH', 'Sophienstr.', '40', '38118', 'Braunschweig', 'Duitsland', 'f.fiechter@wichmann.de'),
-(5, 'Dijklander Ziekenhuis Hoorn', 'Maelsonstraat', '3', '1624 NP', 'Hoorn', 'Nederland', 'M.A.A.Nolles-Ligthart@dijklander.nl');
+(5, 'Dijklander Ziekenhuis Hoorn', 'Maelsonstraat', '3', '1624 NP', 'Hoorn', 'Nederland', 'M.A.A.Nolles-Ligthart@dijklander.nl'),
+(6, 'IJsselland Ziekenhuis', 'Prins Constantijnweg', '2', '2906 ZC', 'Capelle a/d IJssel', 'Nederland', 'NZalm@ysl.nl');
 
 -- --------------------------------------------------------
 
@@ -59,7 +60,7 @@ CREATE TABLE `klanten` (
   `id` int(11) NOT NULL,
   `voornaam` varchar(100) NOT NULL,
   `achternaam` varchar(100) NOT NULL,
-  `telefoonnummer` varchar(20) NOT NULL,
+  `telefoonnummer_mobiel` varchar(15) DEFAULT NULL,
   `email` varchar(255) NOT NULL,
   `functie` varchar(100) NOT NULL,
   `bedrijf_id` int(11) DEFAULT NULL,
@@ -71,13 +72,15 @@ CREATE TABLE `klanten` (
 -- Gegevens worden geëxporteerd voor tabel `klanten`
 --
 
-INSERT INTO `klanten` (`id`, `voornaam`, `achternaam`, `telefoonnummer`, `email`, `functie`, `bedrijf_id`, `notities`, `telefoonnummer_vast`) VALUES
+INSERT INTO `klanten` (`id`, `voornaam`, `achternaam`, `telefoonnummer_mobiel`, `email`, `functie`, `bedrijf_id`, `notities`, `telefoonnummer_vast`) VALUES
 (2, 'Albert', 'Boddema', '0621819760', 'albert@leomusic.nl', 'Directeur', 1, '4e update ', NULL),
 (3, 'Nicole', 'Verhoef', '0648792396', 'nicole@villaproctrl.com', 'Back office', 2, '', NULL),
 (4, 'Tonny', 'Koops', '0628788421', 'tonny@villaproctrl.com', 'Directeur', 2, '', NULL),
 (5, 'Hans', 'Groenhof', '0612232025', 'hans@leomsic.nl', 'Technicus', 1, '', NULL),
 (56, 'Fridolin', 'Fiechter', '004915787813685', 'f.fiechter@wichmann.de', 'Teamleider', 4, '', NULL),
-(57, 'Ria', 'Nolles', '0630702401', 'M.A.A.Nolles-Ligthart@dijklander.nl', 'CoÃ¶rdinator Gastvrijheid', 5, '', NULL);
+(57, 'Ria', 'Nolles', '0630702401', 'M.A.A.Nolles-Ligthart@dijklander.nl', 'CoÃ¶rdinator Gastvrijheid', 5, '', NULL),
+(58, 'Nathalie', 'Zalm', '06-47633670', 'NZalm@ysl.n', 'Administratief medewerkster', 6, 'Aanvraag blokjes 1e gen wandhouder met slot', '010 258 5256'),
+(59, 'Jolanda', 'Egberink', '010-2585938', 'jegberink@ysl.nl', 'Strategisch projectleider', 6, 'Werkzaam op ma, di en do.', '010-2585938');
 
 --
 -- Indexen voor geëxporteerde tabellen
@@ -104,13 +107,13 @@ ALTER TABLE `klanten`
 -- AUTO_INCREMENT voor een tabel `bedrijven`
 --
 ALTER TABLE `bedrijven`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT voor een tabel `klanten`
 --
 ALTER TABLE `klanten`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- Beperkingen voor geëxporteerde tabellen

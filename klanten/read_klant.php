@@ -1,10 +1,22 @@
 <?php
 define('SECURE', true);
 include '../config/db_connect.php';
+include '../config/phone_number_formatter.php';
 include '../includes/header.php';
 
+$formatter = new PhoneNumberFormatter();
+
 // Voorbereiden van een SQL statement
-$stmt = $conn->prepare("SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie, bedrijfsnaam, notities FROM klanten JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id");
+$sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functies.functienaam AS functie, bedrijfsnaam, bedrijven.land, notities 
+        FROM klanten 
+        JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
+        JOIN functies ON klanten.functie_id = functies.id";
+$stmt = $conn->prepare($sql);
+
+if ($stmt === false) {
+    die('Prepare failed: ' . htmlspecialchars($conn->error));
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
@@ -27,15 +39,16 @@ $result = $stmt->get_result();
         <?php
         if ($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
+                $country = $row["bedrijfsnaam"] == "Bedrijf onbekend" ? null : $row["land"];
                 echo "<tr>
                         <td>" . $row["id"]. "</td>
-                        <td><a href='update_klant.php?id=" . $row["id"] . "'>" . $row["voornaam"]. " " . $row["achternaam"]. "</a></td>
-                        <td>" . $row["telefoonnummer_mobiel"]. "</td>
-                        <td>" . $row["telefoonnummer_vast"]. "</td>
-                        <td>" . $row["email"]. "</td>
-                        <td>" . $row["functie"]. "</td>
-                        <td>" . $row["bedrijfsnaam"]. "</td>
-                        <td>" . $row["notities"]. "</td>
+                        <td><a href='update_klant.php?id=" . $row["id"] . "'>" . htmlspecialchars($row["voornaam"], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row["achternaam"], ENT_QUOTES, 'UTF-8') . "</a></td>
+                        <td>" . htmlspecialchars($formatter->formatPhoneNumber($row["telefoonnummer_mobiel"], $country), ENT_QUOTES, 'UTF-8') . "</td>
+                        <td>" . htmlspecialchars($formatter->formatPhoneNumber($row["telefoonnummer_vast"], $country), ENT_QUOTES, 'UTF-8') . "</td>
+                        <td>" . htmlspecialchars($row["email"], ENT_QUOTES, 'UTF-8') . "</td>
+                        <td>" . htmlspecialchars($row["functie"], ENT_QUOTES, 'UTF-8') . "</td>
+                        <td>" . htmlspecialchars($row["bedrijfsnaam"], ENT_QUOTES, 'UTF-8') . "</td>
+                        <td>" . htmlspecialchars($row["notities"], ENT_QUOTES, 'UTF-8') . "</td>
                       </tr>";
             }
         } else {

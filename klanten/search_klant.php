@@ -6,25 +6,54 @@ include '../includes/header.php';
 $search_results = [];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $search_term = $_POST['search_term'];
-    $search_type = $_POST['search_type'];
+    $search_term_naam = $_POST['search_term_naam'];
+    $search_term_email = $_POST['search_term_email'];
+    $search_term_telefoonnummer_mobiel = $_POST['search_term_telefoonnummer_mobiel'];
+    $search_term_telefoonnummer_vast = $_POST['search_term_telefoonnummer_vast'];
 
-    if ($search_type == 'naam') {
-        $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie, bedrijfsnaam, notities 
-                FROM klanten 
-                JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
-                WHERE voornaam LIKE ? OR achternaam LIKE ?";
-        $like_search_term = "%$search_term%";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $like_search_term, $like_search_term);
-    } else {
-        $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie, bedrijfsnaam, notities 
-                FROM klanten 
-                JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
-                WHERE $search_type LIKE ?";
-        $like_search_term = "%$search_term%";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $like_search_term);
+    $conditions = [];
+    $params = [];
+    $types = '';
+
+    if (!empty($search_term_naam)) {
+        $conditions[] = "(voornaam LIKE ? OR achternaam LIKE ?)";
+        $params[] = "%$search_term_naam%";
+        $params[] = "%$search_term_naam%";
+        $types .= 'ss';
+    }
+    if (!empty($search_term_email)) {
+        $conditions[] = "email LIKE ?";
+        $params[] = "%$search_term_email%";
+        $types .= 's';
+    }
+    if (!empty($search_term_telefoonnummer_mobiel)) {
+        $conditions[] = "telefoonnummer_mobiel LIKE ?";
+        $params[] = "%$search_term_telefoonnummer_mobiel%";
+        $types .= 's';
+    }
+    if (!empty($search_term_telefoonnummer_vast)) {
+        $conditions[] = "telefoonnummer_vast LIKE ?";
+        $params[] = "%$search_term_telefoonnummer_vast%";
+        $types .= 's';
+    }
+
+    $sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functies.functienaam AS functie, bedrijfsnaam 
+            FROM klanten 
+            JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
+            JOIN functies ON klanten.functie_id = functies.id";
+
+    if (count($conditions) > 0) {
+        $sql .= " WHERE " . implode(" AND ", $conditions);
+    }
+
+    $stmt = $conn->prepare($sql);
+
+    if ($stmt === false) {
+        die('Prepare failed: ' . htmlspecialchars($conn->error));
+    }
+
+    if (count($params) > 0) {
+        $stmt->bind_param($types, ...$params);
     }
 
     $stmt->execute();
@@ -43,17 +72,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <h1 class="mt-5">Klant zoeken</h1>
 <form method="post" action="search_klant.php">
     <div class="mb-3">
-        <label for="search_term" class="form-label">Zoekterm</label>
-        <input type="text" class="form-control" id="search_term" name="search_term" required>
+        <label for="search_term_naam" class="form-label">Naam</label>
+        <input type="text" class="form-control" id="search_term_naam" name="search_term_naam">
     </div>
     <div class="mb-3">
-        <label for="search_type" class="form-label">Zoek op</label>
-        <select class="form-control" id="search_type" name="search_type" required>
-            <option value="naam">Naam</option>
-            <option value="email">Email</option>
-            <option value="telefoonnummer_mobiel">Telefoonnummer Mobiel</option>
-            <option value="telefoonnummer_vast">Telefoonnummer Vast</option>
-        </select>
+        <label for="search_term_email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="search_term_email" name="search_term_email">
+    </div>
+    <div class="mb-3">
+        <label for="search_term_telefoonnummer_mobiel" class="form-label">Telefoonnummer Mobiel</label>
+        <input type="text" class="form-control" id="search_term_telefoonnummer_mobiel" name="search_term_telefoonnummer_mobiel">
+    </div>
+    <div class="mb-3">
+        <label for="search_term_telefoonnummer_vast" class="form-label">Telefoonnummer Vast</label>
+        <input type="text" class="form-control" id="search_term_telefoonnummer_vast" name="search_term_telefoonnummer_vast">
     </div>
     <button type="submit" class="btn btn-primary">Zoeken</button>
 </form>
@@ -70,60 +102,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <th>Email</th>
                 <th>Functie</th>
                 <th>Bedrijf</th>
-                <th>Notities</th>
-                <th>Acties</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($search_results as $row): ?>
                 <tr>
                     <td><?php echo $row["id"]; ?></td>
-                    <td><?php echo $row["voornaam"] . " " . $row["achternaam"]; ?></td>
-                    <td><?php echo $row["telefoonnummer_mobiel"]; ?></td>
-                    <td><?php echo $row["telefoonnummer_vast"]; ?></td>
-                    <td><?php echo $row["email"]; ?></td>
-                    <td><?php echo $row["functie"]; ?></td>
-                    <td><?php echo $row["bedrijfsnaam"]; ?></td>
-                    <td><?php echo $row["notities"]; ?></td>
-                    <td>
-                        <a href="update_klant.php?id=<?php echo $row['id']; ?>" class="btn btn-warning btn-sm">Bewerken</a>
-                    </td>
+                    <td><a href="update_klant.php?id=<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row["voornaam"], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row["achternaam"], ENT_QUOTES, 'UTF-8'); ?></a></td>
+                    <td><?php echo htmlspecialchars($row["telefoonnummer_mobiel"], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($row["telefoonnummer_vast"], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($row["email"], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($row["functie"], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($row["bedrijfsnaam"], ENT_QUOTES, 'UTF-8'); ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
-
-    <div class="mt-5">
-        <h3>Asana Taken</h3>
-        <div class="btn-group mb-3" role="group" aria-label="Asana Taken">
-            <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#offerteForm" aria-expanded="false" aria-controls="offerteForm">Offerte</button>
-            <button type="button" class="btn btn-secondary">Terugbelverzoek</button>
-            <button type="button" class="btn btn-secondary">Service verzoek</button>
-        </div>
-        <div class="collapse" id="offerteForm">
-            <div class="card card-body">
-                <form>
-                    <div class="mb-3">
-                        <label for="onderwerp" class="form-label">Onderwerp</label>
-                        <input type="text" class="form-control" id="onderwerp" name="onderwerp" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="omschrijving" class="form-label">Omschrijving</label>
-                        <textarea class="form-control" id="omschrijving" name="omschrijving" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="afspraken" class="form-label">Afspraken</label>
-                        <textarea class="form-control" id="afspraken" name="afspraken" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Verstuur</button>
-                </form>
-            </div>
-        </div>
-        <div class="input-group mt-3">
-            <button type="button" class="btn btn-secondary">Reactie op</button>
-            <input type="text" class="form-control" placeholder="Voer reactie in">
-        </div>
-    </div>
 <?php elseif ($_SERVER["REQUEST_METHOD"] == "POST"): ?>
     <p class="mt-3">Geen resultaten gevonden.</p>
 <?php endif; ?>
