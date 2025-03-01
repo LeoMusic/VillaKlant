@@ -66,8 +66,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" class="form-control" id="achternaam" name="achternaam" value="<?php echo $klant['achternaam']; ?>" disabled>
             </div>
             <div class="mb-3">
-                <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
-                <input type="text" class="form-control" id="telefoonnummer" name="telefoonnummer" value="<?php echo $klant['telefoonnummer']; ?>" disabled>
+                <label for="telefoonnummer_mobiel" class="form-label">Telefoonnummer Mobiel</label>
+                <input type="text" class="form-control" id="telefoonnummer_mobiel" name="telefoonnummer_mobiel" value="<?php echo $klant['telefoonnummer_mobiel']; ?>" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="telefoonnummer_vast" class="form-label">Telefoonnummer Vast</label>
+                <input type="text" class="form-control" id="telefoonnummer_vast" name="telefoonnummer_vast" value="<?php echo $klant['telefoonnummer_vast']; ?>" disabled>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
