@@ -4,7 +4,7 @@ include '../config/db_connect.php';
 include '../includes/header.php';
 
 // Haal de bedrijfsgegevens op
-$sql = "SELECT bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land FROM bedrijven WHERE id != 1";
+$sql = "SELECT id, bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land FROM bedrijven WHERE id != 1";
 $result = $conn->query($sql);
 
 $bedrijven = [];
@@ -20,7 +20,7 @@ $conn->close();
 <html>
 <head>
     <title>Wie Wat Waar</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxySiOV-nRnFVhYnV0lpurdCRq3DsNxgw"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxySiOV-nRnFVhYnV0lpurdCRq3DsNxgw&callback=initMap"></script>
     <script>
         function initMap() {
             var mapOptions = {
@@ -40,6 +40,14 @@ $conn->close();
                             position: results[0].geometry.location,
                             title: bedrijf.bedrijfsnaam
                         });
+
+                        var infoWindow = new google.maps.InfoWindow({
+                            content: '<a href="read_bedrijf.php?id=' + bedrijf.id + '">' + bedrijf.bedrijfsnaam + '</a>'
+                        });
+
+                        marker.addListener('click', function() {
+                            infoWindow.open(map, marker);
+                        });
                     } else {
                         console.error('Geocode was not successful for the following reason: ' + status);
                     }
@@ -52,7 +60,7 @@ $conn->close();
         }
     </script>
 </head>
-<body onload="initMap()" onerror="handleMapError()">
+<body>
     <h1>Wie Wat Waar</h1>
     <div id="map" style="height: 500px; width: 100%;"></div>
 </body>
