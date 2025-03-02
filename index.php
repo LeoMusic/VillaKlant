@@ -12,6 +12,7 @@
     <li class="list-group-item"><a href="bedrijf/create_bedrijf.php">Bedrijf toevoegen</a></li>
     <li class="list-group-item"><a href="bedrijf/read_bedrijf.php">Bedrijven bekijken</a></li>
     <li class="list-group-item"><a href="bedrijf/search_bedrijf.php">Bedrijf zoeken</a></li>
+    <li class="list-group-item"><a href="bedrijf/wie_wat_waar.php">Wie Wat Waar</a></li>
 </ul>
 
 <?php include 'includes/footer.php'; ?>
