@@ -10,7 +10,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $postcode = $_POST['postcode'];
     $woonplaats = $_POST['woonplaats'];
     $land = $_POST['land'];
+    $nieuw_land = $_POST['nieuw_land'];
     $email_facturen = $_POST['email_facturen'];
+
+    // Gebruik het nieuwe land als deze is ingevoerd
+    if (!empty($nieuw_land)) {
+        $land = $nieuw_land;
+    }
 
     // Voorbereiden van een SQL statement
     $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -30,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // Array met landen
 $landen = [
-    "Nederland", "België", "Duitsland", "Frankrijk", "Verenigd Koninkrijk", "Spanje", "Italië", "Zwitserland", "Oostenrijk", "Zweden", "Noorwegen", "Denemarken", "Finland", "Ierland", "Portugal", "Griekenland", "Polen", "Tsjechië", "Hongarije", "Roemenië", "Bulgarije", "Kroatië", "Slovenië", "Slowakije", "Litouwen", "Letland", "Estland", "Luxemburg", "IJsland", "Cyprus", "Malta"
+    "Nederland", "België", "Duitsland", "Frankrijk", "Verenigd Koninkrijk", "Spanje", "Italië", "Zwitserland", "Oostenrijk", "Zweden", "Noorwegen", "Denemarken", "Finland", "Ierland", "Portugal", "Griekenland", "Polen", "Tsjechië", "Hongarije", "Roemenië", "Bulgarije", "Kroatië", "Slovenië", "Slowakije", "Litouwen", "Letland", "Estland", "Luxemburg", "IJsland", "Cyprus", "Malta", "Israël", "Turkije", "Verenigde Arabische Emiraten", "Saoedi-Arabië", "Qatar", "Koeweit", "Bahrein", "Oman", "Egypte", "Jordanië", "Libanon", "Canada", "USA"
 ];
 ?>
 
@@ -73,7 +79,9 @@ $landen = [
                 <?php foreach ($landen as $land): ?>
                     <option value="<?php echo $land; ?>"><?php echo $land; ?></option>
                 <?php endforeach; ?>
+                <option value="other">Ander land toevoegen</option>
             </select>
+            <input type="text" class="form-control d-none mt-2" id="nieuw_land" name="nieuw_land" placeholder="Voer nieuw land in">
         </div>
         <div class="col">
             <label for="email_facturen" class="form-label">Email voor facturen</label>
@@ -82,5 +90,18 @@ $landen = [
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+<script>
+document.getElementById('land').addEventListener('change', function() {
+    var nieuwLandInput = document.getElementById('nieuw_land');
+    if (this.value === 'other') {
+        nieuwLandInput.classList.remove('d-none');
+        nieuwLandInput.required = true;
+    } else {
+        nieuwLandInput.classList.add('d-none');
+        nieuwLandInput.required = false;
+    }
+});
+</script>
 
 <?php include '../includes/footer.php'; ?>
