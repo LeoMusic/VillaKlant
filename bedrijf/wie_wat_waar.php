@@ -20,7 +20,7 @@ $conn->close();
 <html>
 <head>
     <title>Wie Wat Waar</title>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxySiOV-nRnFVhYnV0lpurdCRq3DsNxgw&callback=initMap"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=MyKey&callback=initMap"></script>
     <script>
         function initMap() {
             var mapOptions = {
