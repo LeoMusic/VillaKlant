@@ -33,6 +33,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/VillaKlant/bedrijf/search_bedrijf.php">Bedrijf zoeken</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/VillaKlant/relatie/index.php">Relatie Zoeken</a>
+                </li>
             </ul>
         </div>
     </nav>

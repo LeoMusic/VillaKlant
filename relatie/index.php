@@ -1,6 +1,6 @@
 <?php
 define('SECURE', true);
-include 'includes/header.php';
+include '../includes/header.php';
 ?>
 
 <!DOCTYPE html>
@@ -8,7 +8,7 @@ include 'includes/header.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VillaKlant - Relatie Zoeken</title>
+    <title>Relatie Zoeken - VillaKlant</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -130,7 +130,7 @@ include 'includes/header.php';
             
             <!-- Search Form -->
             <div class="search-box">
-                <form action="relatie/search_results.php" method="GET" id="searchForm">
+                <form action="search_results.php" method="GET" id="searchForm">
                     <div class="input-group">
                         <input 
                             type="text" 
@@ -160,9 +160,9 @@ include 'includes/header.php';
             
             <!-- Quick Actions -->
             <div class="quick-actions">
-                <a href="klanten/read_klant.php" class="quick-action-btn">Alle Klanten</a>
-                <a href="bedrijf/read_bedrijf.php" class="quick-action-btn">Alle Bedrijven</a>
-                <a href="bedrijf/wie_wat_waar.php" class="quick-action-btn">Wie Wat Waar</a>
+                <a href="../klanten/read_klant.php" class="quick-action-btn">Alle Klanten</a>
+                <a href="../bedrijf/read_bedrijf.php" class="quick-action-btn">Alle Bedrijven</a>
+                <a href="../bedrijf/wie_wat_waar.php" class="quick-action-btn">Wie Wat Waar</a>
             </div>
             
             <!-- Help Text -->
@@ -217,6 +217,6 @@ include 'includes/header.php';
         });
     </script>
     
-    <?php include 'includes/footer.php'; ?>
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>

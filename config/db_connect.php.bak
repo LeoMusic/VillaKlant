@@ -5,8 +5,8 @@ if (!defined('SECURE')) {
 
 // Database verbinding code
 $servername = "localhost";
-$username = "albert";
-$password = "ab";
+$username = "root";
+$password = "";
 $dbname = "villaklant";
 
 // Maak verbinding
