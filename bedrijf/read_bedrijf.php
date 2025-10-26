@@ -37,7 +37,7 @@ if ($bedrijf_id) {
         </thead>
         <tbody>
             <tr>
-                <td><a href="update_bedrijf.php?id=<?php echo $bedrijf['id']; ?>"><?php echo htmlspecialchars($bedrijf["bedrijfsnaam"]); ?></a></td>
+                <td><a href="../relatie/search_results.php?bedrijf_id=<?php echo $bedrijf['id']; ?>"><?php echo htmlspecialchars($bedrijf["bedrijfsnaam"]); ?></a></td>
                 <td>
                     <?php echo htmlspecialchars($bedrijf["straat"]) . " " . htmlspecialchars($bedrijf["huisnummer"]); ?><br>
                     <?php echo htmlspecialchars($bedrijf["postcode"]) . " " . htmlspecialchars($bedrijf["woonplaats"]); ?><br>
@@ -111,7 +111,7 @@ if ($bedrijf_id) {
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
                     echo "<tr>
-                            <td><a href='read_bedrijf.php?id=" . $row["id"] . "'>" . htmlspecialchars($row["bedrijfsnaam"]). "</a></td>
+                            <td><a href='../relatie/search_results.php?bedrijf_id=" . $row["id"] . "'>" . htmlspecialchars($row["bedrijfsnaam"]). "</a></td>
                             <td>" . htmlspecialchars($row["straat"]) . " " . htmlspecialchars($row["huisnummer"]) . "<br>" . 
                                      htmlspecialchars($row["postcode"]) . " " . htmlspecialchars($row["woonplaats"]) . "<br>" .
                                      htmlspecialchars($row["land"]) . "</td>
