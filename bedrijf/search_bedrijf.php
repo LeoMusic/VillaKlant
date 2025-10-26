@@ -40,6 +40,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select class="form-control" id="search_type" name="search_type" required>
             <option value="bedrijfsnaam">Bedrijfsnaam</option>
             <option value="email_facturen">Email</option>
+            <option value="website">Website</option>
+            <option value="telefoonnummer">Telefoonnummer</option>
+            <option value="woonplaats">Woonplaats</option>
+            <option value="land">Land</option>
+            <option value="notities">Notities</option>
         </select>
     </div>
     <button type="submit" class="btn btn-primary">Zoeken</button>
@@ -50,30 +55,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <table class="table table-striped mt-3">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Bedrijfsnaam</th>
-                <th>Straat</th>
-                <th>Huisnummer</th>
-                <th>Postcode</th>
-                <th>Woonplaats</th>
-                <th>Land</th>
-                <th>Email Facturen</th>
+                <th>Adres</th>
+                <th>Contact</th>
+                <th>Notities</th>
+                <th>Acties</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($search_results as $row): ?>
                 <tr>
-                    <td><?php echo $row["id"]; ?></td>
-                    <td><a href="update_bedrijf.php?id=<?php echo $row['id']; ?>"><?php echo $row["bedrijfsnaam"]; ?></a></td>
-                    <td><?php echo $row["straat"]; ?></td>
-                    <td><?php echo $row["huisnummer"]; ?></td>
-                    <td><?php echo $row["postcode"]; ?></td>
-                    <td><?php echo $row["woonplaats"]; ?></td>
-                    <td><?php echo $row["land"]; ?></td>
-                    <td><?php echo $row["email_facturen"]; ?></td>
+                    <td><a href="update_bedrijf.php?id=<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row["bedrijfsnaam"]); ?></a></td>
+                    <td>
+                        <?php echo htmlspecialchars($row["straat"]) . " " . htmlspecialchars($row["huisnummer"]); ?><br>
+                        <?php echo htmlspecialchars($row["postcode"]) . " " . htmlspecialchars($row["woonplaats"]); ?><br>
+                        <?php echo htmlspecialchars($row["land"]); ?>
+                    </td>
+                    <td>
+                        <?php if (!empty($row["telefoonnummer"])): ?>
+                            <strong>Tel:</strong> <?php echo htmlspecialchars($row["telefoonnummer"]); ?><br>
+                        <?php endif; ?>
+                        <?php if (!empty($row["email_facturen"])): ?>
+                            <strong>Email:</strong> <a href="mailto:<?php echo htmlspecialchars($row["email_facturen"]); ?>"><?php echo htmlspecialchars($row["email_facturen"]); ?></a><br>
+                        <?php endif; ?>
+                        <?php if (!empty($row["website"])): ?>
+                            <strong>Website:</strong> <a href="<?php echo htmlspecialchars($row["website"]); ?>" target="_blank"><?php echo htmlspecialchars($row["website"]); ?></a>
+                        <?php endif; ?>
+                    </td>
+                    <td><?php echo !empty($row["notities"]) ? nl2br(htmlspecialchars($row["notities"])) : '-'; ?></td>
+                    <td>
+                        <a href="update_bedrijf.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-primary">Bewerken</a>
+                        <a href="read_bedrijf.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info">Details</a>
+                    </td>
                 </tr>
                 <tr>
-                    <td colspan="8">
+                    <td colspan="5">
                         <h5>Contacten bij dit bedrijf:</h5>
                         <?php
                         $bedrijf_id = $row['id'];

@@ -30,26 +30,34 @@ if ($bedrijf_id) {
         <thead>
             <tr>
                 <th>Bedrijfsnaam</th>
-                <th>Straat</th>
-                <th>Huisnummer</th>
-                <th>Postcode</th>
-                <th>Woonplaats</th>
-                <th>Land</th>
-                <th>Email voor facturen</th>
+                <th>Adres</th>
+                <th>Contact</th>
+                <th>Notities</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><a href="update_bedrijf.php?id=<?php echo $bedrijf['id']; ?>"><?php echo $bedrijf["bedrijfsnaam"]; ?></a></td>
-                <td><?php echo $bedrijf["straat"]; ?></td>
-                <td><?php echo $bedrijf["huisnummer"]; ?></td>
-                <td><?php echo $bedrijf["postcode"]; ?></td>
-                <td><?php echo $bedrijf["woonplaats"]; ?></td>
-                <td><?php echo $bedrijf["land"]; ?></td>
-                <td><?php echo $bedrijf["email_facturen"]; ?></td>
+                <td><a href="update_bedrijf.php?id=<?php echo $bedrijf['id']; ?>"><?php echo htmlspecialchars($bedrijf["bedrijfsnaam"]); ?></a></td>
+                <td>
+                    <?php echo htmlspecialchars($bedrijf["straat"]) . " " . htmlspecialchars($bedrijf["huisnummer"]); ?><br>
+                    <?php echo htmlspecialchars($bedrijf["postcode"]) . " " . htmlspecialchars($bedrijf["woonplaats"]); ?><br>
+                    <?php echo htmlspecialchars($bedrijf["land"]); ?>
+                </td>
+                <td>
+                    <?php if (!empty($bedrijf["telefoonnummer"])): ?>
+                        <strong>Tel:</strong> <?php echo htmlspecialchars($bedrijf["telefoonnummer"]); ?><br>
+                    <?php endif; ?>
+                    <?php if (!empty($bedrijf["email_facturen"])): ?>
+                        <strong>Email:</strong> <a href="mailto:<?php echo htmlspecialchars($bedrijf["email_facturen"]); ?>"><?php echo htmlspecialchars($bedrijf["email_facturen"]); ?></a><br>
+                    <?php endif; ?>
+                    <?php if (!empty($bedrijf["website"])): ?>
+                        <strong>Website:</strong> <a href="<?php echo htmlspecialchars($bedrijf["website"]); ?>" target="_blank"><?php echo htmlspecialchars($bedrijf["website"]); ?></a>
+                    <?php endif; ?>
+                </td>
+                <td><?php echo !empty($bedrijf["notities"]) ? nl2br(htmlspecialchars($bedrijf["notities"])) : '-'; ?></td>
             </tr>
             <tr>
-                <td colspan="7">
+                <td colspan="4">
                     <h5>Contacten bij dit bedrijf:</h5>
                     <?php
                     $klanten_sql = "SELECT klanten.id, klanten.voornaam, klanten.achternaam, klanten.telefoonnummer_mobiel, klanten.telefoonnummer_vast, klanten.email, functies.functienaam 
@@ -93,12 +101,9 @@ if ($bedrijf_id) {
         <thead>
             <tr>
                 <th>Bedrijfsnaam</th>
-                <th>Straat</th>
-                <th>Huisnummer</th>
-                <th>Postcode</th>
-                <th>Woonplaats</th>
-                <th>Land</th>
-                <th>Email voor facturen</th>
+                <th>Adres</th>
+                <th>Contact</th>
+                <th>Acties</th>
             </tr>
         </thead>
         <tbody>
@@ -106,17 +111,30 @@ if ($bedrijf_id) {
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
                     echo "<tr>
-                            <td><a href='read_bedrijf.php?id=" . $row["id"] . "'>" . $row["bedrijfsnaam"]. "</a></td>
-                            <td>" . $row["straat"]. "</td>
-                            <td>" . $row["huisnummer"]. "</td>
-                            <td>" . $row["postcode"]. "</td>
-                            <td>" . $row["woonplaats"]. "</td>
-                            <td>" . $row["land"]. "</td>
-                            <td>" . $row["email_facturen"]. "</td>
+                            <td><a href='read_bedrijf.php?id=" . $row["id"] . "'>" . htmlspecialchars($row["bedrijfsnaam"]). "</a></td>
+                            <td>" . htmlspecialchars($row["straat"]) . " " . htmlspecialchars($row["huisnummer"]) . "<br>" . 
+                                     htmlspecialchars($row["postcode"]) . " " . htmlspecialchars($row["woonplaats"]) . "<br>" .
+                                     htmlspecialchars($row["land"]) . "</td>
+                            <td>";
+                    
+                    if (!empty($row["telefoonnummer"])) {
+                        echo "<strong>Tel:</strong> " . htmlspecialchars($row["telefoonnummer"]) . "<br>";
+                    }
+                    if (!empty($row["email_facturen"])) {
+                        echo "<strong>Email:</strong> <a href='mailto:" . htmlspecialchars($row["email_facturen"]) . "'>" . htmlspecialchars($row["email_facturen"]) . "</a><br>";
+                    }
+                    if (!empty($row["website"])) {
+                        echo "<strong>Website:</strong> <a href='" . htmlspecialchars($row["website"]) . "' target='_blank'>" . htmlspecialchars($row["website"]) . "</a>";
+                    }
+                    
+                    echo "</td>
+                            <td>
+                                <a href='update_bedrijf.php?id=" . $row["id"] . "' class='btn btn-sm btn-primary'>Bewerken</a>
+                            </td>
                           </tr>";
                 }
             } else {
-                echo "<tr><td colspan='7'>0 results</td></tr>";
+                echo "<tr><td colspan='4'>0 results</td></tr>";
             }
             $conn->close();
             ?>

@@ -14,10 +14,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $woonplaats = $_POST['woonplaats'];
     $land = $_POST['land'];
     $email_facturen = $_POST['email_facturen'];
+    $website = $_POST['website'];
+    $telefoonnummer = $_POST['telefoonnummer'];
+    $notities = $_POST['notities'];
+
+    // Formateer telefoonnummer
+    include '../config/phone_number_formatter.php';
+    $formatter = new PhoneNumberFormatter();
+    if (!empty($telefoonnummer)) {
+        $telefoonnummer = $formatter->format($telefoonnummer, $land);
+    }
 
     // Voorbereiden van een SQL statement
-    $stmt = $conn->prepare("UPDATE bedrijven SET bedrijfsnaam=?, straat=?, huisnummer=?, postcode=?, woonplaats=?, land=?, email_facturen=? WHERE id=?");
-    $stmt->bind_param("sssssssi", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $id);
+    $stmt = $conn->prepare("UPDATE bedrijven SET bedrijfsnaam=?, straat=?, huisnummer=?, postcode=?, woonplaats=?, land=?, email_facturen=?, website=?, telefoonnummer=?, notities=? WHERE id=?");
+    $stmt->bind_param("ssssssssssi", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities, $id);
 
     // Uitvoeren van het statement
     if ($stmt->execute() === TRUE) {
@@ -97,7 +107,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
     <div class="mb-3">
         <label for="email_facturen" class="form-label">Email Facturen</label>
-        <input type="email" class="form-control" id="email_facturen" name="email_facturen" value="<?php echo isset($bedrijf['email_facturen']) ? $bedrijf['email_facturen'] : ''; ?>" required>
+        <input type="email" class="form-control" id="email_facturen" name="email_facturen" value="<?php echo isset($bedrijf['email_facturen']) ? $bedrijf['email_facturen'] : ''; ?>">
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            <label for="website" class="form-label">Website</label>
+            <input type="url" class="form-control" id="website" name="website" value="<?php echo isset($bedrijf['website']) ? htmlspecialchars($bedrijf['website']) : ''; ?>" placeholder="https://www.voorbeeld.nl">
+        </div>
+        <div class="col">
+            <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
+            <input type="tel" class="form-control" id="telefoonnummer" name="telefoonnummer" value="<?php echo isset($bedrijf['telefoonnummer']) ? htmlspecialchars($bedrijf['telefoonnummer']) : ''; ?>" placeholder="0599-612346">
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="notities" class="form-label">Notities</label>
+        <textarea class="form-control" id="notities" name="notities" rows="3" placeholder="Vrije notities en opmerkingen over dit bedrijf..."><?php echo isset($bedrijf['notities']) ? htmlspecialchars($bedrijf['notities']) : ''; ?></textarea>
     </div>
     <button type="submit" class="btn btn-primary">Bijwerken</button>
 </form>

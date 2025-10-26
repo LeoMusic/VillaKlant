@@ -12,15 +12,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $land = $_POST['land'];
     $nieuw_land = $_POST['nieuw_land'];
     $email_facturen = $_POST['email_facturen'];
+    $website = $_POST['website'];
+    $telefoonnummer = $_POST['telefoonnummer'];
+    $notities = $_POST['notities'];
 
     // Gebruik het nieuwe land als deze is ingevoerd
     if (!empty($nieuw_land)) {
         $land = $nieuw_land;
     }
 
+    // Formateer telefoonnummer
+    include '../config/phone_number_formatter.php';
+    $formatter = new PhoneNumberFormatter();
+    if (!empty($telefoonnummer)) {
+        $telefoonnummer = $formatter->format($telefoonnummer, $land);
+    }
+
     // Voorbereiden van een SQL statement
-    $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssss", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen);
+    $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen, website, telefoonnummer, notities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssssss", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities);
 
     // Uitvoeren van het statement
     if ($stmt->execute() === TRUE) {
@@ -85,8 +95,22 @@ $landen = [
         </div>
         <div class="col">
             <label for="email_facturen" class="form-label">Email voor facturen</label>
-            <input type="email" class="form-control" id="email_facturen" name="email_facturen" required>
+            <input type="email" class="form-control" id="email_facturen" name="email_facturen">
         </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            <label for="website" class="form-label">Website</label>
+            <input type="url" class="form-control" id="website" name="website" placeholder="https://www.voorbeeld.nl">
+        </div>
+        <div class="col">
+            <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
+            <input type="tel" class="form-control" id="telefoonnummer" name="telefoonnummer">
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="notities" class="form-label">Notities</label>
+        <textarea class="form-control" id="notities" name="notities" rows="3" placeholder="Vrije notities en opmerkingen over dit bedrijf..."></textarea>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

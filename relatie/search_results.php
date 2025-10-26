@@ -79,11 +79,14 @@ if (!empty($search_query) && $klant_id == 0 && $bedrijf_id == 0) {
                    straat LIKE ? OR 
                    woonplaats LIKE ? OR 
                    email_facturen LIKE ? OR 
+                   website LIKE ? OR 
+                   telefoonnummer LIKE ? OR 
+                   notities LIKE ? OR 
                    land LIKE ?";
     
     $bedrijf_stmt = $conn->prepare($bedrijf_sql);
     $search_param = "%$search_query%";
-    $bedrijf_stmt->bind_param("sssss", $search_param, $search_param, $search_param, $search_param, $search_param);
+    $bedrijf_stmt->bind_param("ssssssss", $search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param);
     $bedrijf_stmt->execute();
     $bedrijf_result = $bedrijf_stmt->get_result();
     
@@ -104,7 +107,7 @@ if (!empty($search_query) && $klant_id == 0 && $bedrijf_id == 0) {
                         telefoonnummer_vast LIKE ? OR 
                         functies.functienaam LIKE ? OR 
                         bedrijven.bedrijfsnaam LIKE ? OR 
-                        notities LIKE ?";
+                        klanten.notities LIKE ?";
     
     $klant_stmt = $conn->prepare($klant_sql);
     $klant_stmt->bind_param("ssssssss", $search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $search_param);
@@ -343,6 +346,25 @@ if ($selected_bedrijf) {
         .bedrijf-email {
             color: #1a73e8;
             font-size: 14px;
+        }
+        .bedrijf-phone {
+            color: #5f6368;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .bedrijf-website {
+            color: #1a73e8;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .bedrijf-notes {
+            color: #5f6368;
+            font-size: 13px;
+            margin-top: 8px;
+            font-style: italic;
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
         }
         .werknemer-name {
             font-weight: 500;
@@ -597,6 +619,32 @@ if ($selected_bedrijf) {
                                     <?php if (!empty($bedrijf['email_facturen'])): ?>
                                         <br>📧 <?php echo htmlspecialchars($bedrijf['email_facturen'], ENT_QUOTES, 'UTF-8'); ?>
                                     <?php endif; ?>
+                                    <?php if (!empty($bedrijf['telefoonnummer'])): ?>
+                                        <?php if (!empty($bedrijf['email_facturen'])): ?> | <?php else: ?><br><?php endif; ?>📞 <?php echo htmlspecialchars($bedrijf['telefoonnummer'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php endif; ?>
+                                    <?php if (!empty($bedrijf['website'])): ?>
+                                        <br>
+                                        <?php
+                                        // Extract domain for favicon
+                                        $website_url = $bedrijf['website'];
+                                        $parsed_url = parse_url($website_url);
+                                        $domain = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+                                        if (empty($domain) && !empty($parsed_url['path'])) {
+                                            // Handle URLs without protocol
+                                            $domain = parse_url('https://' . $website_url, PHP_URL_HOST);
+                                        }
+                                        ?>
+                                        <?php if (!empty($domain)): ?>
+                                            <img src="https://www.google.com/s2/favicons?sz=16&domain=<?php echo urlencode($domain); ?>" 
+                                                 alt="Favicon" 
+                                                 style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                            <span style="display: none;">🌐 </span>
+                                        <?php else: ?>
+                                            🌐 
+                                        <?php endif; ?>
+                                        <?php echo htmlspecialchars($bedrijf['website'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -648,6 +696,42 @@ if ($selected_bedrijf) {
                                         <?php echo htmlspecialchars($selected_bedrijf['email_facturen'], ENT_QUOTES, 'UTF-8'); ?>
                                     </a>
                                 </div>
+                                <?php if (!empty($selected_bedrijf['telefoonnummer'])): ?>
+                                <div class="bedrijf-phone">
+                                    📞 <?php echo htmlspecialchars($selected_bedrijf['telefoonnummer'], ENT_QUOTES, 'UTF-8'); ?>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (!empty($selected_bedrijf['website'])): ?>
+                                <div class="bedrijf-website">
+                                    <?php
+                                    // Extract domain for favicon
+                                    $website_url = $selected_bedrijf['website'];
+                                    $parsed_url = parse_url($website_url);
+                                    $domain = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+                                    if (empty($domain) && !empty($parsed_url['path'])) {
+                                        // Handle URLs without protocol
+                                        $domain = parse_url('https://' . $website_url, PHP_URL_HOST);
+                                    }
+                                    ?>
+                                    <?php if (!empty($domain)): ?>
+                                        <img src="https://www.google.com/s2/favicons?sz=16&domain=<?php echo urlencode($domain); ?>" 
+                                             alt="Favicon" 
+                                             style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                        <span style="display: none;">🌐 </span>
+                                    <?php else: ?>
+                                        🌐 
+                                    <?php endif; ?>
+                                    <a href="<?php echo htmlspecialchars($selected_bedrijf['website'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank">
+                                        <?php echo htmlspecialchars($selected_bedrijf['website'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </a>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (!empty($selected_bedrijf['notities'])): ?>
+                                <div class="bedrijf-notes">
+                                    📝 <?php echo nl2br(htmlspecialchars($selected_bedrijf['notities'], ENT_QUOTES, 'UTF-8')); ?>
+                                </div>
+                                <?php endif; ?>
                                 <div class="mt-3">
                                     <small class="text-muted">
                                         <strong><?php echo count($bedrijf_werknemers); ?></strong> 

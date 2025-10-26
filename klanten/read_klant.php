@@ -7,7 +7,7 @@ include '../includes/header.php';
 $formatter = new PhoneNumberFormatter();
 
 // Voorbereiden van een SQL statement
-$sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functies.functienaam AS functie, bedrijfsnaam, bedrijven.land, notities 
+$sql = "SELECT klanten.id, voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functies.functienaam AS functie, bedrijfsnaam, bedrijven.land, klanten.notities 
         FROM klanten 
         JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id 
         JOIN functies ON klanten.functie_id = functies.id";
