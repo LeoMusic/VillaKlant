@@ -1,6 +1,7 @@
 <?php
 define('SECURE', true);
 include '../config/db_connect.php';
+include '../config/form_helpers.php';
 include '../includes/header.php';
 
 $klant = null;
@@ -72,36 +73,41 @@ $bedrijven_result = $conn->query("SELECT id, bedrijfsnaam FROM bedrijven");
 $functies_result = $conn->query("SELECT id, functienaam FROM functies");
 ?>
 
+<?php echo FormHelpers::getRequiredFieldsCSS(); ?>
+
 <h1 class="mt-5">Klant bijwerken</h1>
+
+<?php echo FormHelpers::createRequiredFieldsInfo(); ?>
+
 <form method="post" action="update_klant.php">
     <input type="hidden" name="id" value="<?php echo isset($klant['id']) ? $klant['id'] : ''; ?>">
-    <div class="mb-3">
-        <label for="voornaam" class="form-label">Voornaam</label>
-        <input type="text" class="form-control" id="voornaam" name="voornaam" value="<?php echo isset($klant['voornaam']) ? $klant['voornaam'] : ''; ?>" required>
-    </div>
-    <div class="mb-3">
-        <label for="achternaam" class="form-label">Achternaam</label>
-        <input type="text" class="form-control" id="achternaam" name="achternaam" value="<?php echo isset($klant['achternaam']) ? $klant['achternaam'] : ''; ?>" required>
-    </div>
+    
     <div class="row mb-3">
         <div class="col">
-            <label for="telefoonnummer_mobiel" class="form-label">Telefoonnummer Mobiel</label>
-            <input type="text" class="form-control" id="telefoonnummer_mobiel" name="telefoonnummer_mobiel" value="<?php echo isset($klant['telefoonnummer_mobiel']) ? $klant['telefoonnummer_mobiel'] : ''; ?>">
+            <?php echo FormHelpers::createTextInput('voornaam', 'Voornaam', false, isset($klant['voornaam']) ? $klant['voornaam'] : ''); ?>
         </div>
         <div class="col">
-            <label for="telefoonnummer_vast" class="form-label">Telefoonnummer Vast</label>
-            <input type="text" class="form-control" id="telefoonnummer_vast" name="telefoonnummer_vast" value="<?php echo isset($klant['telefoonnummer_vast']) ? $klant['telefoonnummer_vast'] : ''; ?>">
+            <?php echo FormHelpers::createTextInput('achternaam', 'Achternaam', true, isset($klant['achternaam']) ? $klant['achternaam'] : ''); ?>
         </div>
     </div>
+    
     <div class="row mb-3">
         <div class="col">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="<?php echo isset($klant['email']) ? $klant['email'] : ''; ?>" required>
+            <?php echo FormHelpers::createTelInput('telefoonnummer_mobiel', 'Telefoonnummer Mobiel', false, isset($klant['telefoonnummer_mobiel']) ? $klant['telefoonnummer_mobiel'] : '', '+31 6 12 34 56 78'); ?>
         </div>
         <div class="col">
-            <label for="functie_id" class="form-label">Functie</label>
+            <?php echo FormHelpers::createTelInput('telefoonnummer_vast', 'Telefoonnummer Vast', false, isset($klant['telefoonnummer_vast']) ? $klant['telefoonnummer_vast'] : '', '+31 20 123 45 67'); ?>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col">
+            <?php echo FormHelpers::createEmailInput('email', 'Email', false, isset($klant['email']) ? $klant['email'] : '', 'naam@voorbeeld.nl'); ?>
+        </div>
+        <div class="col">
+            <?php echo FormHelpers::createLabel('functie_id', 'Functie', false); ?>
             <div class="input-group">
-                <select class="form-control" id="functie_id" name="functie_id" required>
+                <select class="form-control" id="functie_id" name="functie_id">
                     <option value="">Selecteer een functie</option>
                     <?php
                     if ($functies_result->num_rows > 0) {
@@ -117,9 +123,10 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
             </div>
         </div>
     </div>
+    
     <div class="mb-3">
-        <label for="bedrijf_id" class="form-label">Bedrijf</label>
-        <select class="form-control" id="bedrijf_id" name="bedrijf_id" required>
+        <?php echo FormHelpers::createLabel('bedrijf_id', 'Bedrijf', false); ?>
+        <select class="form-control" id="bedrijf_id" name="bedrijf_id">
             <option value="">Selecteer een bedrijf</option>
             <?php
             if ($bedrijven_result->num_rows > 0) {
@@ -131,10 +138,8 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
             ?>
         </select>
     </div>
-    <div class="mb-3">
-        <label for="notities" class="form-label">Notities</label>
-        <textarea class="form-control" id="notities" name="notities" rows="3"><?php echo isset($klant['notities']) ? htmlspecialchars($klant['notities'], ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
-    </div>
+    
+    <?php echo FormHelpers::createTextarea('notities', 'Notities', false, isset($klant['notities']) ? $klant['notities'] : '', 3, 'Vrije notities en opmerkingen over deze klant...'); ?>
     <div class="d-flex justify-content-between">
         <button type="submit" class="btn btn-primary">Bijwerken</button>
         <form method="post" action="delete_klant.php" onsubmit="return confirm('Weet u zeker dat u deze klant wilt verwijderen?');">

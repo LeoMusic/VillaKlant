@@ -1,6 +1,7 @@
 <?php
 define('SECURE', true);
 include '../config/db_connect.php';
+include '../config/form_helpers.php';
 include '../includes/header.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -55,63 +56,65 @@ $landen = [
     <textarea class="form-control" placeholder="Ruimte om even gegevens te plakken. Ctrl + V... deze info wordt niet bewaard!" style="width: 1000px; height: 200px;"></textarea>
 </div>
 
+<?php echo FormHelpers::getRequiredFieldsCSS(); ?>
+
 <h1 class="mt-5">Bedrijf toevoegen</h1>
+
+<?php echo FormHelpers::createRequiredFieldsInfo(); ?>
+
 <form method="post" action="create_bedrijf.php">
-    <div class="mb-3">
-        <label for="bedrijfsnaam" class="form-label">Bedrijfsnaam</label>
-        <input type="text" class="form-control" id="bedrijfsnaam" name="bedrijfsnaam" required>
-    </div>
+    
+    <?php echo FormHelpers::createTextInput('bedrijfsnaam', 'Bedrijfsnaam', true); ?>
+    
     <div class="row mb-3">
         <div class="col">
-            <label for="straat" class="form-label">Straat</label>
-            <input type="text" class="form-control" id="straat" name="straat" required>
+            <?php echo FormHelpers::createLabel('straat', 'Straat', false); ?>
+            <input type="text" class="form-control" id="straat" name="straat">
         </div>
         <div class="col-2">
-            <label for="huisnummer" class="form-label">Huisnummer</label>
-            <input type="text" class="form-control" id="huisnummer" name="huisnummer" required>
+            <?php echo FormHelpers::createLabel('huisnummer', 'Huisnummer', false); ?>
+            <input type="text" class="form-control" id="huisnummer" name="huisnummer">
         </div>
     </div>
+    
     <div class="row mb-3">
         <div class="col">
-            <label for="postcode" class="form-label">Postcode</label>
-            <input type="text" class="form-control" id="postcode" name="postcode" required>
+            <?php echo FormHelpers::createLabel('postcode', 'Postcode', false); ?>
+            <input type="text" class="form-control" id="postcode" name="postcode">
         </div>
         <div class="col">
-            <label for="woonplaats" class="form-label">Woonplaats</label>
-            <input type="text" class="form-control" id="woonplaats" name="woonplaats" required>
+            <?php echo FormHelpers::createLabel('woonplaats', 'Woonplaats', false); ?>
+            <input type="text" class="form-control" id="woonplaats" name="woonplaats">
         </div>
     </div>
+    
     <div class="row mb-3">
         <div class="col">
-            <label for="land" class="form-label">Land</label>
-            <select class="form-control" id="land" name="land" required>
-                <option value="">Selecteer een land</option>
-                <?php foreach ($landen as $land): ?>
-                    <option value="<?php echo $land; ?>"><?php echo $land; ?></option>
-                <?php endforeach; ?>
-                <option value="other">Ander land toevoegen</option>
-            </select>
+            <?php 
+            $land_options = [];
+            foreach ($landen as $land) {
+                $land_options[$land] = $land;
+            }
+            $land_options['other'] = 'Ander land toevoegen';
+            echo FormHelpers::createSelect('land', 'Land', $land_options, false); 
+            ?>
             <input type="text" class="form-control d-none mt-2" id="nieuw_land" name="nieuw_land" placeholder="Voer nieuw land in">
         </div>
         <div class="col">
-            <label for="email_facturen" class="form-label">Email voor facturen</label>
-            <input type="email" class="form-control" id="email_facturen" name="email_facturen">
+            <?php echo FormHelpers::createEmailInput('email_facturen', 'Email voor facturen', false, '', 'bijvoorbeeld@bedrijf.nl'); ?>
         </div>
     </div>
+    
     <div class="row mb-3">
         <div class="col">
-            <label for="website" class="form-label">Website</label>
-            <input type="url" class="form-control" id="website" name="website" placeholder="https://www.voorbeeld.nl">
+            <?php echo FormHelpers::createUrlInput('website', 'Website', false, '', 'https://www.voorbeeld.nl'); ?>
         </div>
         <div class="col">
-            <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
-            <input type="tel" class="form-control" id="telefoonnummer" name="telefoonnummer">
+            <?php echo FormHelpers::createTelInput('telefoonnummer', 'Telefoonnummer', false, '', '+31 6 12 34 56 78'); ?>
         </div>
     </div>
-    <div class="mb-3">
-        <label for="notities" class="form-label">Notities</label>
-        <textarea class="form-control" id="notities" name="notities" rows="3" placeholder="Vrije notities en opmerkingen over dit bedrijf..."></textarea>
-    </div>
+    
+    <?php echo FormHelpers::createTextarea('notities', 'Notities', false, '', 4, 'Vrije notities en opmerkingen over dit bedrijf...'); ?>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 

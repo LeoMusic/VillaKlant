@@ -1,6 +1,7 @@
 <?php
 define('SECURE', true);
 include '../config/db_connect.php';
+include '../config/form_helpers.php';
 include '../includes/header.php';
 
 $bedrijf = null;
@@ -78,51 +79,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
+<?php echo FormHelpers::getRequiredFieldsCSS(); ?>
+
 <h1 class="mt-5">Bedrijf bijwerken</h1>
+
+<?php echo FormHelpers::createRequiredFieldsInfo(); ?>
+
 <form method="post" action="update_bedrijf.php">
     <input type="hidden" name="id" value="<?php echo isset($bedrijf['id']) ? $bedrijf['id'] : ''; ?>">
-    <div class="mb-3">
-        <label for="bedrijfsnaam" class="form-label">Bedrijfsnaam</label>
-        <input type="text" class="form-control" id="bedrijfsnaam" name="bedrijfsnaam" value="<?php echo isset($bedrijf['bedrijfsnaam']) ? $bedrijf['bedrijfsnaam'] : ''; ?>" required>
-    </div>
-    <div class="mb-3">
-        <label for="straat" class="form-label">Straat</label>
-        <input type="text" class="form-control" id="straat" name="straat" value="<?php echo isset($bedrijf['straat']) ? $bedrijf['straat'] : ''; ?>" required>
-    </div>
-    <div class="mb-3">
-        <label for="huisnummer" class="form-label">Huisnummer</label>
-        <input type="text" class="form-control" id="huisnummer" name="huisnummer" value="<?php echo isset($bedrijf['huisnummer']) ? $bedrijf['huisnummer'] : ''; ?>" required>
-    </div>
-    <div class="mb-3">
-        <label for="postcode" class="form-label">Postcode</label>
-        <input type="text" class="form-control" id="postcode" name="postcode" value="<?php echo isset($bedrijf['postcode']) ? $bedrijf['postcode'] : ''; ?>" required>
-    </div>
-    <div class="mb-3">
-        <label for="woonplaats" class="form-label">Woonplaats</label>
-        <input type="text" class="form-control" id="woonplaats" name="woonplaats" value="<?php echo isset($bedrijf['woonplaats']) ? $bedrijf['woonplaats'] : ''; ?>" required>
-    </div>
-    <div class="mb-3">
-        <label for="land" class="form-label">Land</label>
-        <input type="text" class="form-control" id="land" name="land" value="<?php echo isset($bedrijf['land']) ? $bedrijf['land'] : ''; ?>" required>
-    </div>
-    <div class="mb-3">
-        <label for="email_facturen" class="form-label">Email Facturen</label>
-        <input type="email" class="form-control" id="email_facturen" name="email_facturen" value="<?php echo isset($bedrijf['email_facturen']) ? $bedrijf['email_facturen'] : ''; ?>">
-    </div>
+    
+    <?php echo FormHelpers::createTextInput('bedrijfsnaam', 'Bedrijfsnaam', true, isset($bedrijf['bedrijfsnaam']) ? $bedrijf['bedrijfsnaam'] : ''); ?>
+    
     <div class="row mb-3">
         <div class="col">
-            <label for="website" class="form-label">Website</label>
-            <input type="url" class="form-control" id="website" name="website" value="<?php echo isset($bedrijf['website']) ? htmlspecialchars($bedrijf['website']) : ''; ?>" placeholder="https://www.voorbeeld.nl">
+            <?php echo FormHelpers::createLabel('straat', 'Straat', false); ?>
+            <input type="text" class="form-control" id="straat" name="straat" value="<?php echo isset($bedrijf['straat']) ? htmlspecialchars($bedrijf['straat']) : ''; ?>">
+        </div>
+        <div class="col-2">
+            <?php echo FormHelpers::createLabel('huisnummer', 'Huisnummer', false); ?>
+            <input type="text" class="form-control" id="huisnummer" name="huisnummer" value="<?php echo isset($bedrijf['huisnummer']) ? htmlspecialchars($bedrijf['huisnummer']) : ''; ?>">
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col">
+            <?php echo FormHelpers::createTextInput('postcode', 'Postcode', false, isset($bedrijf['postcode']) ? $bedrijf['postcode'] : ''); ?>
         </div>
         <div class="col">
-            <label for="telefoonnummer" class="form-label">Telefoonnummer</label>
-            <input type="tel" class="form-control" id="telefoonnummer" name="telefoonnummer" value="<?php echo isset($bedrijf['telefoonnummer']) ? htmlspecialchars($bedrijf['telefoonnummer']) : ''; ?>" placeholder="0599-612346">
+            <?php echo FormHelpers::createTextInput('woonplaats', 'Woonplaats', false, isset($bedrijf['woonplaats']) ? $bedrijf['woonplaats'] : ''); ?>
         </div>
     </div>
-    <div class="mb-3">
-        <label for="notities" class="form-label">Notities</label>
-        <textarea class="form-control" id="notities" name="notities" rows="3" placeholder="Vrije notities en opmerkingen over dit bedrijf..."><?php echo isset($bedrijf['notities']) ? htmlspecialchars($bedrijf['notities']) : ''; ?></textarea>
+    
+    <?php echo FormHelpers::createTextInput('land', 'Land', false, isset($bedrijf['land']) ? $bedrijf['land'] : ''); ?>
+    
+    <?php echo FormHelpers::createEmailInput('email_facturen', 'Email voor facturen', false, isset($bedrijf['email_facturen']) ? $bedrijf['email_facturen'] : '', 'bijvoorbeeld@bedrijf.nl'); ?>
+    
+    <div class="row mb-3">
+        <div class="col">
+            <?php echo FormHelpers::createUrlInput('website', 'Website', false, isset($bedrijf['website']) ? $bedrijf['website'] : '', 'https://www.voorbeeld.nl'); ?>
+        </div>
+        <div class="col">
+            <?php echo FormHelpers::createTelInput('telefoonnummer', 'Telefoonnummer', false, isset($bedrijf['telefoonnummer']) ? $bedrijf['telefoonnummer'] : '', '+31 6 12 34 56 78'); ?>
+        </div>
     </div>
+    
+    <?php echo FormHelpers::createTextarea('notities', 'Notities', false, isset($bedrijf['notities']) ? $bedrijf['notities'] : '', 4, 'Vrije notities en opmerkingen over dit bedrijf...'); ?>
     <button type="submit" class="btn btn-primary">Bijwerken</button>
 </form>
 

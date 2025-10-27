@@ -1,6 +1,7 @@
 <?php
 define('SECURE', true);
 include '../config/db_connect.php';
+include '../config/form_helpers.php';
 include '../includes/header.php';
 
 // Voeg het placeholder bedrijf toe als het nog niet bestaat
@@ -78,43 +79,44 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
+    <?php echo FormHelpers::getRequiredFieldsCSS(); ?>
+    
     <div class="container mt-3">
         <h2>Prikbord</h2>
         <textarea class="form-control" placeholder="Ruimte om even gegevens te plakken. Ctrl + V... deze info wordt niet bewaard!" style="width: 1000px; height: 200px;"></textarea>
     </div>
 
     <h1 class="mt-5">Klant toevoegen</h1>
+    
+    <?php echo FormHelpers::createRequiredFieldsInfo(); ?>
+    
     <form method="post" action="create_klant.php">
         <div class="row mb-3">
             <div class="col">
-                <label for="voornaam" class="form-label">Voornaam</label>
-                <input type="text" class="form-control" id="voornaam" name="voornaam" required>
+                <?php echo FormHelpers::createLabel('voornaam', 'Voornaam', false); ?>
+                <input type="text" class="form-control" id="voornaam" name="voornaam">
             </div>
             <div class="col">
-                <label for="achternaam" class="form-label">Achternaam</label>
+                <?php echo FormHelpers::createLabel('achternaam', 'Achternaam', true); ?>
                 <input type="text" class="form-control" id="achternaam" name="achternaam" required>
             </div>
         </div>
+        
         <div class="row mb-3">
             <div class="col">
-                <label for="telefoonnummer_mobiel" class="form-label">Telefoonnummer Mobiel</label>
-                <input type="text" class="form-control" id="telefoonnummer_mobiel" name="telefoonnummer_mobiel">
-                <small class="form-text text-muted">Niet ingevuld</small>
+                <?php echo FormHelpers::createTelInput('telefoonnummer_mobiel', 'Telefoonnummer Mobiel', false, '', '+31 6 12 34 56 78'); ?>
             </div>
             <div class="col">
-                <label for="telefoonnummer_vast" class="form-label">Telefoonnummer Vast</label>
-                <input type="text" class="form-control" id="telefoonnummer_vast" name="telefoonnummer_vast">
-                <small class="form-text text-muted">Niet ingevuld</small>
+                <?php echo FormHelpers::createTelInput('telefoonnummer_vast', 'Telefoonnummer Vast', false, '', '+31 20 123 45 67'); ?>
             </div>
         </div>
+        
         <div class="row mb-3">
             <div class="col">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email">
-                <small class="form-text text-muted">Niet ingevuld</small>
+                <?php echo FormHelpers::createEmailInput('email', 'Email', false, '', 'naam@voorbeeld.nl'); ?>
             </div>
             <div class="col">
-                <label for="functie_id" class="form-label">Functie</label>
+                <?php echo FormHelpers::createLabel('functie_id', 'Functie', false); ?>
                 <div class="input-group">
                     <select class="form-control" id="functie_id" name="functie_id">
                         <option value="">Selecteer een functie</option>
@@ -131,8 +133,9 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
                 </div>
             </div>
         </div>
+        
         <div class="mb-3">
-            <label for="bedrijf_id" class="form-label">Bedrijf</label>
+            <?php echo FormHelpers::createLabel('bedrijf_id', 'Bedrijf', false); ?>
             <div class="input-group">
                 <select class="form-control" id="bedrijf_id" name="bedrijf_id">
                     <option value="1">Bedrijf onbekend</option>
@@ -148,12 +151,9 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
                     <a href="../bedrijf/create_bedrijf.php" class="btn btn-outline-secondary">Nieuw bedrijf</a>
                 </div>
             </div>
-            <small class="form-text text-muted">Niet ingevuld</small>
         </div>
-        <div class="mb-3">
-            <label for="notities" class="form-label">Notities</label>
-            <textarea class="form-control" id="notities" name="notities" rows="3"></textarea>
-        </div>
+        
+        <?php echo FormHelpers::createTextarea('notities', 'Notities', false, '', 3, 'Vrije notities en opmerkingen over deze klant...'); ?>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
