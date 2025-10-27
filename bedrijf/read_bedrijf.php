@@ -19,7 +19,7 @@ if ($bedrijf_id) {
         exit;
     }
 } else {
-    $sql = "SELECT * FROM bedrijven WHERE id != 1";
+    $sql = "SELECT * FROM bedrijven WHERE id != 1 ORDER BY bedrijfsnaam ASC";
     $result = $conn->query($sql);
 }
 ?>
