@@ -2,16 +2,19 @@
 
 *Voor het snel oppakken van de draad in toekomstige development sessies*
 
-## 📊 **HUIDIGE STATUS (22 oktober 2025)**
+## 📊 **HUIDIGE STATUS (27 oktober 2025)**
 
-### **🟢 PROJECT STATUS: VOLLEDIG FUNCTIONEEL**
-Het VillaKlant systeem is **productie-klaar** met alle kernfunctionaliteiten werkend.
+### **🟢 PROJECT STATUS: PRODUCTIE-KLAAR MET UITGEBREIDE FUNCTIONALITEIT**
+Het VillaKlant systeem is **volledig functioneel** met alle kernfunctionaliteiten en vele verbeteringen.
 
-### **✅ RECENT VOLTOOID:**
-1. **3-block Template System** - Consistente layout voor alle zoeksituaties
-2. **Template Display Fix** - $selected_bedrijf logica geoptimaliseerd  
-3. **Moderne Hoofdpagina** - Google-stijl landing page geïmplementeerd
-4. **4 Zoeksituaties** - Alle scenario's getest en werkend
+### **✅ RECENT VOLTOOID (26-27 oktober):**
+1. **Uitgebreide Bedrijfsvelden** - Website, telefoonnummer en notities toegevoegd
+2. **Moderne FormHelpers Systeem** - Gestandaardiseerde formulieren met verplichte veld indicaties
+3. **Google Maps Integratie** - Wie Wat Waar kaartfunctionaliteit geïmplementeerd
+4. **Zoekbare Bedrijfselectie** - Type-ahead zoeken in klant formulieren
+5. **Favicon Ondersteuning** - Website iconen in zoekresultaten
+6. **Verbeterde Layout** - Notities veld geoptimaliseerd in zoekresultaten
+7. **Alfabetische Sortering** - Alle lijsten consistent gesorteerd
 
 ---
 
@@ -29,8 +32,11 @@ Het VillaKlant systeem is **productie-klaar** met alle kernfunctionaliteiten wer
 ### **2. Kernbestanden om te Kennen**
 ```
 🏠 /index.php                     # Hoofdpagina (Google-stijl)
-🔍 /relatie/search_results.php    # Template logica (3-block layout)
+🔍 /relatie/search_results.php    # Template logica (3-block layout + favicons)
 ⚙️ /config/db_connect.php         # Database verbinding
+🛠️ /config/form_helpers.php       # Gestandaardiseerde formulier elementen
+📞 /config/phone_number_formatter.php # Nederlandse telefoonnummer formatting
+🗺️ /bedrijf/wie_wat_waar.php      # Google Maps integratie
 📋 WERKAFSPRAKEN_AI_AGENT.md      # Volledige project historie
 📖 README.md                      # Comprehensive documentatie
 ```
@@ -41,6 +47,10 @@ Het VillaKlant systeem is **productie-klaar** met alle kernfunctionaliteiten wer
 SELECT COUNT(*) FROM klanten;      -- Verwacht: ~98 werknemers
 SELECT COUNT(*) FROM bedrijven;    -- Verwacht: ~30 bedrijven  
 SELECT COUNT(*) FROM functies;     -- Verwacht: ~20 functies
+
+-- Test nieuwe velden (toegevoegd 26 oktober)
+SELECT bedrijfsnaam, website, telefoonnummer, notities FROM bedrijven WHERE website IS NOT NULL;
+-- Bedrijven met website, telefoon en notities
 
 -- Test specifieke data voor debugging
 SELECT * FROM klanten WHERE voornaam = 'Linda' AND achternaam = 'van der Hof';
@@ -85,14 +95,26 @@ SELECT * FROM klanten WHERE voornaam = 'Linda' AND achternaam = 'van der Hof';
 - **Oorzaak**: $selected_bedrijf niet gezet buiten directe navigatie
 - **Oplossing**: Bedrijf selectie logica verplaatst (regel ~185)
 
-### **✅ OPGELOST - Situatie Detectie**  
-- **Probleem**: Fallback naar multiple_results te agressief
-- **Oplossing**: Verbeterde conditie logica (regel ~175)
+### **✅ OPGELOST - Database Schema Uitbreidingen**
+- **Probleem**: Bedrijven misten belangrijke velden
+- **Oplossing**: Website, telefoonnummer, notities velden toegevoegd
+- **Script**: /data/uitbreiding_bedrijven_extra_velden.sql uitgevoerd
+
+### **✅ OPGELOST - Formulier Standaardisatie**
+- **Probleem**: Inconsistente formulieren zonder verplichte veld indicaties
+- **Oplossing**: FormHelpers klasse geïmplementeerd met visuele feedback
+- **Resultaat**: Alle CRUD formulieren gestandaardiseerd
+
+### **✅ OPGELOST - Zoekbare Bedrijfselectie**
+- **Probleem**: Lange dropdown lijsten onoverzichtelijk
+- **Oplossing**: Type-ahead zoekfunctionaliteit geïmplementeerd
+- **Features**: Live filtering, dropdown met resultaten, alfabetische sortering
 
 ### **⚠️ WATCHPOINTS voor Toekomst**
-1. **Scope Issues**: Bedrijf selectie MOET buiten conditionele blokken
-2. **Template Consistency**: Alle 4 situaties moeten 3-block layout tonen
-3. **Database Foreign Keys**: Respecteer klanten->bedrijf_id relaties
+1. **Google Maps API**: Quota limits monitoren voor wie_wat_waar functionaliteit
+2. **FormHelpers**: Alle nieuwe formulieren moeten FormHelpers klasse gebruiken
+3. **Favicon Loading**: Fallback mechanisme voor websites zonder favicon
+4. **Phone Formatting**: PhoneNumberFormatter class respecteren voor consistentie
 
 ---
 
@@ -100,10 +122,11 @@ SELECT * FROM klanten WHERE voornaam = 'Linda' AND achternaam = 'van der Hof';
 
 ### **Test Set 1: Basis Functionaliteit**
 ```
-1. Zoek "linda"           → Expect: unique_person, Sustainable Foods Co
-2. Zoek "sustainable"     → Expect: unique_company, 2 werknemers  
-3. Zoek "inkoop"          → Expect: multiple_results, 8 personen
+1. Zoek "linda"           → Expect: unique_person, notities rechts, favicon
+2. Zoek "sustainable"     → Expect: unique_company, bedrijfsgegevens + website  
+3. Zoek "inkoop"          → Expect: multiple_results, 8 personen, favicons
 4. Zoek "xyz123unknown"   → Expect: no_results, aanmaakopties
+5. Test /bedrijf/wie_wat_waar.php → Expect: Google Maps met markers
 ```
 
 ### **Test Set 2: Navigatie Flow**
@@ -114,12 +137,13 @@ SELECT * FROM klanten WHERE voornaam = 'Linda' AND achternaam = 'van der Hof';
 4. Collega klikken → JavaScript werknemer details
 ```
 
-### **Test Set 3: Edge Cases**
+### **Test Set 3: Nieuwe Functionaliteiten**
 ```
-1. Lege zoekopdracht → Expect: form validation
-2. Special characters → Expect: geen crashes
-3. Zeer lange strings → Expect: graceful handling
-4. SQL injection attempts → Expect: prepared statements beschermen
+1. FormHelpers testen → Voeg klant/bedrijf toe, check rode asterisk (*)
+2. Bedrijf zoeken → Type in klant formulier, check dropdown filtering
+3. Website favicons → Zoek bedrijf met website, check icoon naast URL
+4. Notities layout → Check 2-kolom layout (bedrijfsgegevens links, notities rechts)
+5. Alfabetische lijsten → Check alle dropdowns gesorteerd A-Z
 ```
 
 ---
@@ -180,10 +204,13 @@ SELECT * FROM klanten WHERE voornaam = 'Linda' AND achternaam = 'van der Hof';
 ## 🔥 **KRITIEKE BESTANDEN - NIET WIJZIGEN ZONDER BACKUP**
 
 ```
-⚠️  /relatie/search_results.php    # Template logica - complex!
+⚠️  /relatie/search_results.php    # Template logica + favicon systeem - complex!
 ⚠️  /config/db_connect.php         # Database credentials
+⚠️  /config/form_helpers.php       # FormHelpers class - alle formulieren afhankelijk
 ⚠️  /data/villaklant.sql           # Schema definition
+⚠️  /data/uitbreiding_bedrijven_extra_velden.sql # Schema updates
 ⚠️  /includes/header.php           # Site-wide navigation
+⚠️  /bedrijf/wie_wat_waar.php      # Google Maps API integratie
 ```
 
 ---
@@ -217,5 +244,34 @@ Leo Music & Audio → Tweede hoofdbedrijf
 *Dit bestand geeft je alles wat je nodig hebt om snel de draad op te pakken voor de volgende development sessie. Test eerst de Quick Start scenario's, bekijk de kritieke code locaties, en je bent klaar om verder te bouwen aan VillaKlant!*
 
 ---
-*Laatst bijgewerkt: 22 oktober 2025*  
-*Status: Productie-klaar, gereed voor uitbreidingen* ✅
+
+## 🆕 **NIEUWE FUNCTIONALITEITEN (26-27 oktober 2025)**
+
+### **📋 FormHelpers Systeem**
+- Gestandaardiseerde formulier elementen met verplichte veld indicaties (rode asterisk *)
+- Automatische XSS beveiliging en Bootstrap styling
+- Alle CRUD formulieren omgezet naar nieuwe systeem
+
+### **🏢 Uitgebreide Bedrijfsinformatie**
+- Website veld met URL validatie en favicon weergave
+- Telefoonnummer met Nederlandse formatting
+- Notities veld voor bedrijfsspecifieke opmerkingen
+
+### **🔍 Intelligente Zoekfunctionaliteit**
+- Type-ahead zoeken voor bedrijfsselectie in klant formulieren
+- Alfabetische sortering in alle dropdown lijsten
+- Live filtering met dropdown resultaten
+
+### **🗺️ Google Maps Integratie**
+- Wie Wat Waar kaartfunctionaliteit geïmplementeerd
+- Automatische geocoding van bedrijfsadressen
+- Interactieve markers met bedrijfsinformatie
+
+### **🎨 Layout Verbeteringen**
+- Notities veld in 2-kolom layout (bedrijfsgegevens links, notities rechts)
+- Favicon ondersteuning voor website links in zoekresultaten
+- Responsive design verbeteringen voor alle nieuwe elementen
+
+---
+*Laatst bijgewerkt: 27 oktober 2025*  
+*Status: Uitgebreid en geoptimaliseerd, productie-klaar met premium functionaliteiten* ✅
