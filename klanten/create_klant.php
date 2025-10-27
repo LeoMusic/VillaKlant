@@ -63,11 +63,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
 }
 
-// Haal de lijst van bedrijven op
-$bedrijven_result = $conn->query("SELECT id, bedrijfsnaam FROM bedrijven");
+// Haal de lijst van bedrijven op (alfabetisch gesorteerd)
+$bedrijven_result = $conn->query("SELECT id, bedrijfsnaam FROM bedrijven ORDER BY bedrijfsnaam ASC");
 
-// Haal de lijst van functies op
-$functies_result = $conn->query("SELECT id, functienaam FROM functies");
+// Haal de lijst van functies op (alfabetisch gesorteerd)
+$functies_result = $conn->query("SELECT id, functienaam FROM functies ORDER BY functienaam ASC");
 ?>
 
 <!DOCTYPE html>
@@ -80,6 +80,36 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
 </head>
 <body>
     <?php echo FormHelpers::getRequiredFieldsCSS(); ?>
+    
+    <style>
+    #bedrijf_dropdown {
+        position: absolute;
+        z-index: 1000;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 2px;
+    }
+    
+    #bedrijf_dropdown .dropdown-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    #bedrijf_dropdown .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    #bedrijf_dropdown .dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    .mb-3 {
+        position: relative;
+    }
+    </style>
     
     <div class="container mt-3">
         <h2>Prikbord</h2>
@@ -137,7 +167,8 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
         <div class="mb-3">
             <?php echo FormHelpers::createLabel('bedrijf_id', 'Bedrijf', false); ?>
             <div class="input-group">
-                <select class="form-control" id="bedrijf_id" name="bedrijf_id">
+                <input type="text" class="form-control" id="bedrijf_search" placeholder="Typ om te zoeken naar bedrijf..." autocomplete="off">
+                <select class="form-control d-none" id="bedrijf_id" name="bedrijf_id">
                     <option value="1">Bedrijf onbekend</option>
                     <?php
                     if ($bedrijven_result->num_rows > 0) {
@@ -151,6 +182,9 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
                     <a href="../bedrijf/create_bedrijf.php" class="btn btn-outline-secondary">Nieuw bedrijf</a>
                 </div>
             </div>
+            <div id="bedrijf_dropdown" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto; display: none;">
+                <!-- Zoekresultaten worden hier dynamisch ingeladen -->
+            </div>
         </div>
         
         <?php echo FormHelpers::createTextarea('notities', 'Notities', false, '', 3, 'Vrije notities en opmerkingen over deze klant...'); ?>
@@ -158,6 +192,7 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
     </form>
 
     <script>
+    // Functie selectie - nieuwe functie toevoegen
     document.getElementById('functie_id').addEventListener('change', function() {
         var nieuweFunctieInput = document.getElementById('nieuwe_functie');
         if (this.value === 'other') {
@@ -166,6 +201,73 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies");
         } else {
             nieuweFunctieInput.classList.add('d-none');
             nieuweFunctieInput.required = false;
+        }
+    });
+
+    // Bedrijf zoekfunctionaliteit
+    const bedrijfSearch = document.getElementById('bedrijf_search');
+    const bedrijfSelect = document.getElementById('bedrijf_id');
+    const bedrijfDropdown = document.getElementById('bedrijf_dropdown');
+    
+    // Haal alle bedrijven op uit de select opties
+    const allBedrijven = [];
+    for (let i = 0; i < bedrijfSelect.options.length; i++) {
+        const option = bedrijfSelect.options[i];
+        allBedrijven.push({
+            id: option.value,
+            naam: option.text
+        });
+    }
+
+    bedrijfSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        if (searchTerm.length === 0) {
+            bedrijfDropdown.style.display = 'none';
+            bedrijfSelect.value = '1'; // Reset naar "Bedrijf onbekend"
+            return;
+        }
+
+        // Filter bedrijven
+        const filteredBedrijven = allBedrijven.filter(bedrijf => 
+            bedrijf.naam.toLowerCase().includes(searchTerm)
+        );
+
+        // Bouw dropdown HTML
+        let dropdownHTML = '';
+        if (filteredBedrijven.length > 0) {
+            filteredBedrijven.forEach(bedrijf => {
+                dropdownHTML += `<a class="dropdown-item" href="#" data-id="${bedrijf.id}" data-naam="${bedrijf.naam}">${bedrijf.naam}</a>`;
+            });
+        } else {
+            dropdownHTML = '<div class="dropdown-item text-muted">Geen bedrijven gevonden</div>';
+        }
+
+        bedrijfDropdown.innerHTML = dropdownHTML;
+        bedrijfDropdown.style.display = 'block';
+    });
+
+    // Klik op dropdown item
+    bedrijfDropdown.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (e.target.classList.contains('dropdown-item') && e.target.dataset.id) {
+            bedrijfSearch.value = e.target.dataset.naam;
+            bedrijfSelect.value = e.target.dataset.id;
+            bedrijfDropdown.style.display = 'none';
+        }
+    });
+
+    // Verberg dropdown bij klik buiten het element
+    document.addEventListener('click', function(e) {
+        if (!bedrijfSearch.contains(e.target) && !bedrijfDropdown.contains(e.target)) {
+            bedrijfDropdown.style.display = 'none';
+        }
+    });
+
+    // Focus op bedrijf search veld
+    bedrijfSearch.addEventListener('focus', function() {
+        if (this.value.trim().length > 0) {
+            bedrijfDropdown.style.display = 'block';
         }
     });
     </script>

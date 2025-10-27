@@ -66,11 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Haal de lijst van bedrijven op
-$bedrijven_result = $conn->query("SELECT id, bedrijfsnaam FROM bedrijven");
+// Haal de lijst van bedrijven op (alfabetisch gesorteerd)
+$bedrijven_result = $conn->query("SELECT id, bedrijfsnaam FROM bedrijven ORDER BY bedrijfsnaam ASC");
 
-// Haal de lijst van functies op
-$functies_result = $conn->query("SELECT id, functienaam FROM functies");
+// Haal de lijst van functies op (alfabetisch gesorteerd)
+$functies_result = $conn->query("SELECT id, functienaam FROM functies ORDER BY functienaam ASC");
 ?>
 
 <?php echo FormHelpers::getRequiredFieldsCSS(); ?>
