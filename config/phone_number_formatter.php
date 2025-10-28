@@ -6,6 +6,13 @@ class PhoneNumberFormatter {
         // Voeg hier meer landcodes toe indien nodig
     ];
 
+    /**
+     * Alias voor formatPhoneNumber voor backwards compatibility
+     */
+    public function format($phoneNumber, $country = null) {
+        return $this->formatPhoneNumber($phoneNumber, $country);
+    }
+
     public function formatPhoneNumber($phoneNumber, $country = null) {
         // Verwijder alle niet-numerieke tekens
         $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);

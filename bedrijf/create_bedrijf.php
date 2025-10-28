@@ -8,43 +8,56 @@ $success_message = '';
 $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $bedrijfsnaam = $_POST['bedrijfsnaam'];
-    $straat = $_POST['straat'];
-    $huisnummer = $_POST['huisnummer'];
-    $postcode = $_POST['postcode'];
-    $woonplaats = $_POST['woonplaats'];
-    $land = $_POST['land'];
-    $nieuw_land = $_POST['nieuw_land'];
-    $email_facturen = $_POST['email_facturen'];
-    $website = $_POST['website'];
-    $telefoonnummer = $_POST['telefoonnummer'];
-    $notities = $_POST['notities'];
+    // Haal POST data veilig op met isset check
+    $bedrijfsnaam = isset($_POST['bedrijfsnaam']) ? trim($_POST['bedrijfsnaam']) : '';
+    $straat = isset($_POST['straat']) ? trim($_POST['straat']) : '';
+    $huisnummer = isset($_POST['huisnummer']) ? trim($_POST['huisnummer']) : '';
+    $postcode = isset($_POST['postcode']) ? trim($_POST['postcode']) : '';
+    $woonplaats = isset($_POST['woonplaats']) ? trim($_POST['woonplaats']) : '';
+    $land = isset($_POST['land']) ? trim($_POST['land']) : '';
+    $nieuw_land = isset($_POST['nieuw_land']) ? trim($_POST['nieuw_land']) : '';
+    $email_facturen = isset($_POST['email_facturen']) ? trim($_POST['email_facturen']) : '';
+    $website = isset($_POST['website']) ? trim($_POST['website']) : '';
+    $telefoonnummer = isset($_POST['telefoonnummer']) ? trim($_POST['telefoonnummer']) : '';
+    $notities = isset($_POST['notities']) ? trim($_POST['notities']) : '';
 
-    // Gebruik het nieuwe land als deze is ingevoerd
-    if (!empty($nieuw_land)) {
-        $land = $nieuw_land;
-    }
-
-    // Formateer telefoonnummer
-    include '../config/phone_number_formatter.php';
-    $formatter = new PhoneNumberFormatter();
-    if (!empty($telefoonnummer)) {
-        $telefoonnummer = $formatter->format($telefoonnummer, $land);
-    }
-
-    // Voorbereiden van een SQL statement
-    $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen, website, telefoonnummer, notities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssssssss", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities);
-
-    // Uitvoeren van het statement
-    if ($stmt->execute() === TRUE) {
-        $success_message = "Nieuw bedrijf succesvol aangemaakt";
+    // Valideer verplichte velden
+    if (empty($bedrijfsnaam)) {
+        $error_message = "Bedrijfsnaam is verplicht";
     } else {
-        $error_message = "Fout: " . $stmt->error;
-    }
+        // Gebruik het nieuwe land als deze is ingevoerd
+        if (!empty($nieuw_land)) {
+            $land = $nieuw_land;
+        }
 
-    // Sluiten van het statement (maar NIET de connectie!)
-    $stmt->close();
+        // Formateer telefoonnummer
+        if (!empty($telefoonnummer)) {
+            if (!class_exists('PhoneNumberFormatter')) {
+                include_once '../config/phone_number_formatter.php';
+            }
+            $formatter = new PhoneNumberFormatter();
+            $telefoonnummer = $formatter->format($telefoonnummer, $land);
+        }
+
+        // Voorbereiden van een SQL statement
+        $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen, website, telefoonnummer, notities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        if ($stmt === false) {
+            $error_message = "Database fout bij prepare: " . htmlspecialchars($conn->error);
+        } else {
+            $stmt->bind_param("ssssssssss", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities);
+
+            // Uitvoeren van het statement
+            if ($stmt->execute()) {
+                $success_message = "Nieuw bedrijf succesvol aangemaakt";
+            } else {
+                $error_message = "Fout bij opslaan: " . htmlspecialchars($stmt->error);
+            }
+
+            // Sluiten van het statement (maar NIET de connectie!)
+            $stmt->close();
+        }
+    }
 }
 
 // Array met landen
@@ -57,8 +70,6 @@ $landen = [
     <h2>Prikbord</h2>
     <textarea class="form-control" placeholder="Ruimte om even gegevens te plakken. Ctrl + V... deze info wordt niet bewaard!" style="width: 1000px; height: 200px;"></textarea>
 </div>
-
-<?php echo FormHelpers::getRequiredFieldsCSS(); ?>
 
 <h1 class="mt-5">Bedrijf toevoegen</h1>
 
