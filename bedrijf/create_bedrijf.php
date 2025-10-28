@@ -119,7 +119,8 @@ echo FormHelpers::createRequiredFieldsInfo();
                 $land_options[$land] = $land;
             }
             $land_options['other'] = 'Ander land toevoegen';
-            echo FormHelpers::createSelect('land', 'Land', $land_options, false); 
+            // Standaard selectie: Nederland
+            echo FormHelpers::createSelect('land', 'Land', $land_options, false, 'Nederland', 'Selecteer een land'); 
             ?>
             <input type="text" class="form-control d-none mt-2" id="nieuw_land" name="nieuw_land" placeholder="Voer nieuw land in">
         </div>
