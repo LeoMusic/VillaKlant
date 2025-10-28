@@ -4,6 +4,9 @@ include '../config/db_connect.php';
 include '../config/form_helpers.php';
 include '../includes/header.php';
 
+$success_message = '';
+$error_message = '';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $bedrijfsnaam = $_POST['bedrijfsnaam'];
     $straat = $_POST['straat'];
@@ -35,14 +38,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Uitvoeren van het statement
     if ($stmt->execute() === TRUE) {
-        echo "<div class='alert alert-success mt-3'>Nieuw bedrijf succesvol aangemaakt</div>";
+        $success_message = "Nieuw bedrijf succesvol aangemaakt";
     } else {
-        echo "<div class='alert alert-danger mt-3'>Fout: " . $stmt->error . "</div>";
+        $error_message = "Fout: " . $stmt->error;
     }
 
-    // Sluiten van het statement en de verbinding
+    // Sluiten van het statement (maar NIET de connectie!)
     $stmt->close();
-    $conn->close();
 }
 
 // Array met landen
@@ -60,7 +62,17 @@ $landen = [
 
 <h1 class="mt-5">Bedrijf toevoegen</h1>
 
-<?php echo FormHelpers::createRequiredFieldsInfo(); ?>
+<?php 
+// Toon success/error berichten
+if (!empty($success_message)) {
+    echo "<div class='alert alert-success mt-3'>" . htmlspecialchars($success_message) . "</div>";
+}
+if (!empty($error_message)) {
+    echo "<div class='alert alert-danger mt-3'>" . htmlspecialchars($error_message) . "</div>";
+}
+
+echo FormHelpers::createRequiredFieldsInfo(); 
+?>
 
 <form method="post" action="create_bedrijf.php">
     
