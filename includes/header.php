@@ -37,19 +37,10 @@
                     <a class="nav-link" href="<?php echo $base_path; ?>klanten/read_klant.php">Klanten bekijken</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo $base_path; ?>klanten/search_klant.php">Klant zoeken</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="<?php echo $base_path; ?>bedrijf/create_bedrijf.php">Bedrijf toevoegen</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="<?php echo $base_path; ?>bedrijf/read_bedrijf.php">Bedrijven bekijken</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo $base_path; ?>bedrijf/search_bedrijf.php">Bedrijf zoeken</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?php echo $base_path; ?>relatie/index.php">Relatie Zoeken</a>
                 </li>
             </ul>
         </div>
