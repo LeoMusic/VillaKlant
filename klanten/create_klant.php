@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nieuwe_functie = $_POST['nieuwe_functie'];
     $bedrijf_id = $_POST['bedrijf_id'];
     $notities = $_POST['notities'];
+    $status = isset($_POST['status']) ? $_POST['status'] : 'Actief';
 
     // Gebruik de nieuwe functie als deze is ingevoerd
     if (!empty($nieuwe_functie)) {
@@ -46,11 +47,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Voorbereiden van een SQL statement
-    $stmt = $conn->prepare("INSERT INTO klanten (voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie_id, bedrijf_id, notities) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO klanten (voornaam, achternaam, telefoonnummer_mobiel, telefoonnummer_vast, email, functie_id, bedrijf_id, notities, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if ($stmt === false) {
         die('Prepare failed: ' . htmlspecialchars($conn->error));
     }
-    $stmt->bind_param("sssssiis", $voornaam, $achternaam, $telefoonnummer_mobiel, $telefoonnummer_vast, $email, $functie_id, $bedrijf_id, $notities);
+    $stmt->bind_param("ssssssiis", $voornaam, $achternaam, $telefoonnummer_mobiel, $telefoonnummer_vast, $email, $functie_id, $bedrijf_id, $notities, $status);
 
     // Uitvoeren van het statement
     if ($stmt->execute() === TRUE) {
@@ -188,6 +189,9 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies ORDER BY f
         </div>
         
         <?php echo FormHelpers::createTextarea('notities', 'Notities', false, '', 3, 'Vrije notities en opmerkingen over deze klant...'); ?>
+        
+        <?php echo FormHelpers::createKlantStatusSelect(true, 'Actief'); ?>
+        
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 

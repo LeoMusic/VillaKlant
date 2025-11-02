@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $website = $_POST['website'];
     $telefoonnummer = $_POST['telefoonnummer'];
     $notities = $_POST['notities'];
+    $status = isset($_POST['status']) ? $_POST['status'] : 'Actief';
 
     // Formateer telefoonnummer
     include '../config/phone_number_formatter.php';
@@ -27,12 +28,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Voorbereiden van een SQL statement
-    $stmt = $conn->prepare("UPDATE bedrijven SET bedrijfsnaam=?, straat=?, huisnummer=?, postcode=?, woonplaats=?, land=?, email_facturen=?, website=?, telefoonnummer=?, notities=? WHERE id=?");
-    $stmt->bind_param("ssssssssssi", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities, $id);
+    $stmt = $conn->prepare("UPDATE bedrijven SET bedrijfsnaam=?, straat=?, huisnummer=?, postcode=?, woonplaats=?, land=?, email_facturen=?, website=?, telefoonnummer=?, notities=?, status=? WHERE id=?");
+    $stmt->bind_param("sssssssssssi", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities, $status, $id);
 
     // Uitvoeren van het statement
     if ($stmt->execute() === TRUE) {
-        echo "<div class='alert alert-success mt-3'>Record updated successfully</div>";
+        echo "<div class='alert alert-success mt-3'>
+                <strong>✅ Gelukt!</strong> De gegevens van " . htmlspecialchars($bedrijfsnaam) . " zijn succesvol bijgewerkt.
+                <div class='mt-2'>
+                    <a href='../relatie/search_results.php?bedrijf_id=" . $id . "' class='btn btn-sm btn-success'>← Terug naar bedrijfskaart</a>
+                    <a href='read_bedrijf.php' class='btn btn-sm btn-secondary'>Naar bedrijvenlijst</a>
+                </div>
+              </div>";
     } else {
         echo "<div class='alert alert-danger mt-3'>Error updating record: " . $stmt->error . "</div>";
     }
@@ -123,8 +130,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
     
-    <?php echo FormHelpers::createTextarea('notities', 'Notities', false, isset($bedrijf['notities']) ? $bedrijf['notities'] : '', 4, 'Vrije notities en opmerkingen over dit bedrijf...'); ?>
-    <button type="submit" class="btn btn-primary">Bijwerken</button>
+    <?php 
+    // Fix voor notities die als '0' zijn opgeslagen
+    $notities_value = isset($bedrijf['notities']) && $bedrijf['notities'] !== '0' ? $bedrijf['notities'] : '';
+    echo FormHelpers::createTextarea('notities', 'Notities', false, $notities_value, 4, 'Vrije notities en opmerkingen over dit bedrijf...'); 
+    ?>
+    
+    <?php echo FormHelpers::createBedrijfStatusSelect(true, isset($bedrijf['status']) ? $bedrijf['status'] : 'Actief'); ?>
+    
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Bijwerken</button>
+        <?php 
+        // Slimme terug knop: als je vanuit bedrijfskaart komt, ga terug naar kaart, anders naar lijst
+        $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+        if (strpos($referer, 'search_results.php') !== false && isset($bedrijf['id'])) {
+            echo '<a href="../relatie/search_results.php?bedrijf_id=' . $bedrijf['id'] . '" class="btn btn-secondary">Annuleren</a>';
+        } else {
+            echo '<a href="../bedrijf/read_bedrijf.php" class="btn btn-secondary">Annuleren</a>';
+        }
+        ?>
+    </div>
 </form>
 
 <?php include '../includes/footer.php'; ?>

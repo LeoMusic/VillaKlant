@@ -17,6 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nieuwe_functie = $_POST['nieuwe_functie'];
     $bedrijf_id = $_POST['bedrijf_id'];
     $notities = $_POST['notities'];
+    $status = isset($_POST['status']) ? $_POST['status'] : 'Actief';
 
     // Gebruik de nieuwe functie als deze is ingevoerd
     if (!empty($nieuwe_functie)) {
@@ -29,17 +30,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Voorbereiden van een SQL statement
-    $stmt = $conn->prepare("UPDATE klanten SET voornaam=?, achternaam=?, telefoonnummer_mobiel=?, telefoonnummer_vast=?, email=?, functie_id=?, bedrijf_id=?, notities=? WHERE id=?");
-    $stmt->bind_param("sssssiisi", $voornaam, $achternaam, $telefoonnummer_mobiel, $telefoonnummer_vast, $email, $functie_id, $bedrijf_id, $notities, $id);
+    $stmt = $conn->prepare("UPDATE klanten SET voornaam=?, achternaam=?, telefoonnummer_mobiel=?, telefoonnummer_vast=?, email=?, functie_id=?, bedrijf_id=?, notities=?, status=? WHERE id=?");
+    $stmt->bind_param("ssssssiisi", $voornaam, $achternaam, $telefoonnummer_mobiel, $telefoonnummer_vast, $email, $functie_id, $bedrijf_id, $notities, $status, $id);
 
     // Uitvoeren van het statement
     if ($stmt->execute() === TRUE) {
-        echo "<div class='alert alert-success mt-3'>Record updated successfully</div>";
+        echo "<div class='alert alert-success mt-3'>
+                <strong>✅ Gelukt!</strong> De gegevens van " . htmlspecialchars($voornaam) . " " . htmlspecialchars($achternaam) . " zijn succesvol bijgewerkt.
+                <div class='mt-2'>
+                    <a href='../relatie/search_results.php?klant_id=" . $id . "' class='btn btn-sm btn-success'>← Terug naar overzicht</a>
+                    <a href='read_klant.php' class='btn btn-sm btn-secondary'>Naar klantenlijst</a>
+                </div>
+              </div>";
     } else {
         echo "<div class='alert alert-danger mt-3'>Error updating record: " . $stmt->error . "</div>";
     }
 
     // Sluiten van het statement
+    $stmt->close();
+    
+    // Haal de bijgewerkte klantgegevens opnieuw op
+    $stmt = $conn->prepare("SELECT * FROM klanten WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $klant = $result->fetch_assoc();
+    }
+    
     $stmt->close();
 } else {
     if (isset($_GET['id'])) {
@@ -139,13 +158,27 @@ $functies_result = $conn->query("SELECT id, functienaam FROM functies ORDER BY f
         </select>
     </div>
     
-    <?php echo FormHelpers::createTextarea('notities', 'Notities', false, isset($klant['notities']) ? $klant['notities'] : '', 3, 'Vrije notities en opmerkingen over deze klant...'); ?>
-    <div class="d-flex justify-content-between">
-        <button type="submit" class="btn btn-primary">Bijwerken</button>
-        <form method="post" action="delete_klant.php" onsubmit="return confirm('Weet u zeker dat u deze klant wilt verwijderen?');">
-            <input type="hidden" name="id" value="<?php echo isset($klant['id']) ? $klant['id'] : ''; ?>">
-            <button type="submit" class="btn btn-danger">Verwijder Klant</button>
-        </form>
+    <?php 
+    // Fix voor notities die als '0' zijn opgeslagen
+    $notities_value = isset($klant['notities']) && $klant['notities'] !== '0' ? $klant['notities'] : '';
+    echo FormHelpers::createTextarea('notities', 'Notities', false, $notities_value, 3, 'Vrije notities en opmerkingen over deze klant...'); 
+    ?>
+    
+    <?php echo FormHelpers::createKlantStatusSelect(true, isset($klant['status']) ? $klant['status'] : 'Actief'); ?>
+    
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <button type="submit" class="btn btn-primary">Bijwerken</button>
+            <?php 
+            // Slimme terug knop: als je vanuit persoonkaart komt, ga terug naar kaart, anders naar lijst
+            $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+            if (strpos($referer, 'search_results.php') !== false && isset($klant['id'])) {
+                echo '<a href="../relatie/search_results.php?klant_id=' . $klant['id'] . '" class="btn btn-secondary">Annuleren</a>';
+            } else {
+                echo '<a href="../klanten/read_klant.php" class="btn btn-secondary">Annuleren</a>';
+            }
+            ?>
+        </div>
     </div>
 </form>
 

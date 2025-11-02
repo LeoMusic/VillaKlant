@@ -191,6 +191,80 @@ class FormHelpers {
     }
     
     /**
+     * Maakt een status dropdown voor bedrijven
+     * 
+     * @param bool $required Of het veld verplicht is
+     * @param string $selectedValue De geselecteerde waarde (default 'Actief')
+     * @param string $additionalClasses Extra CSS klassen
+     * @return string HTML voor het status dropdown veld
+     */
+    public static function createBedrijfStatusSelect($required = true, $selectedValue = 'Actief', $additionalClasses = '') {
+        $options = [
+            'Actief' => 'Actief - Reguliere bedrijfsrelatie',
+            'Prospect' => 'Prospect - Potentiële klant',
+            'Inactief' => 'Inactief - Tijdelijk geen actieve relatie',
+            'Gesloten' => 'Gesloten - Bedrijf gestopt',
+            'Gearchiveerd' => 'Gearchiveerd - Uit systeem verwijderd'
+        ];
+        
+        return self::createSelect('status', 'Status', $options, $required, $selectedValue, '', $additionalClasses);
+    }
+    
+    /**
+     * Maakt een status dropdown voor klanten
+     * 
+     * @param bool $required Of het veld verplicht is
+     * @param string $selectedValue De geselecteerde waarde (default 'Actief')
+     * @param string $additionalClasses Extra CSS klassen
+     * @return string HTML voor het status dropdown veld
+     */
+    public static function createKlantStatusSelect($required = true, $selectedValue = 'Actief', $additionalClasses = '') {
+        $options = [
+            'Actief' => 'Actief - Werkzaam',
+            'Inactief' => 'Inactief - Tijdelijk niet werkzaam',
+            'Uit dienst' => 'Uit dienst - Niet meer werkzaam',
+            'Gearchiveerd' => 'Gearchiveerd - Uit systeem verwijderd'
+        ];
+        
+        return self::createSelect('status', 'Status', $options, $required, $selectedValue, '', $additionalClasses);
+    }
+    
+    /**
+     * Maakt een status badge voor weergave in tabellen
+     * 
+     * @param string $status De status waarde
+     * @param string $type Type entiteit ('bedrijf' of 'klant')
+     * @return string HTML voor de status badge
+     */
+    public static function createStatusBadge($status, $type = 'bedrijf') {
+        // Bepaal badge kleur op basis van status
+        $badgeClass = 'badge ';
+        
+        switch ($status) {
+            case 'Actief':
+                $badgeClass .= 'badge-success';
+                break;
+            case 'Prospect':
+                $badgeClass .= 'badge-info';
+                break;
+            case 'Inactief':
+            case 'Uit dienst':
+                $badgeClass .= 'badge-warning';
+                break;
+            case 'Gesloten':
+                $badgeClass .= 'badge-secondary';
+                break;
+            case 'Gearchiveerd':
+                $badgeClass .= 'badge-danger';
+                break;
+            default:
+                $badgeClass .= 'badge-secondary';
+        }
+        
+        return '<span class="' . $badgeClass . '">' . htmlspecialchars($status) . '</span>';
+    }
+    
+    /**
      * Voegt CSS toe voor verplichte veld styling
      * 
      * @return string CSS styling voor verplichte velden

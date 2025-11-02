@@ -2,11 +2,13 @@
 define('SECURE', true);
 include '../config/db_connect.php';
 include '../config/phone_number_formatter.php';
+include '../config/form_helpers.php';
 include '../includes/header.php';
 
 $formatter = new PhoneNumberFormatter();
 
 $bedrijf_id = isset($_GET['id']) ? $_GET['id'] : null;
+$status_filter = isset($_GET['status']) ? $_GET['status'] : 'Actief';
 
 if ($bedrijf_id) {
     $sql = "SELECT * FROM bedrijven WHERE id=$bedrijf_id AND id != 1";
@@ -19,12 +21,38 @@ if ($bedrijf_id) {
         exit;
     }
 } else {
-    $sql = "SELECT * FROM bedrijven WHERE id != 1 ORDER BY bedrijfsnaam ASC";
+    // Build query with status filter
+    $sql = "SELECT * FROM bedrijven WHERE id != 1";
+    if ($status_filter !== 'Alle') {
+        $sql .= " AND status = '" . $conn->real_escape_string($status_filter) . "'";
+    }
+    $sql .= " ORDER BY bedrijfsnaam ASC";
     $result = $conn->query($sql);
 }
 ?>
 
 <h1 class="mt-5">Bedrijven bekijken</h1>
+
+<?php if (!$bedrijf_id): ?>
+    <!-- Status Filter -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" action="read_bedrijf.php" class="form-inline">
+                <label class="mr-2">Filter op status:</label>
+                <select name="status" class="form-control mr-2" onchange="this.form.submit()">
+                    <option value="Actief" <?php echo $status_filter === 'Actief' ? 'selected' : ''; ?>>Alleen Actief</option>
+                    <option value="Alle" <?php echo $status_filter === 'Alle' ? 'selected' : ''; ?>>Alle statussen</option>
+                    <option value="Prospect" <?php echo $status_filter === 'Prospect' ? 'selected' : ''; ?>>Prospect</option>
+                    <option value="Inactief" <?php echo $status_filter === 'Inactief' ? 'selected' : ''; ?>>Inactief</option>
+                    <option value="Gesloten" <?php echo $status_filter === 'Gesloten' ? 'selected' : ''; ?>>Gesloten</option>
+                    <option value="Gearchiveerd" <?php echo $status_filter === 'Gearchiveerd' ? 'selected' : ''; ?>>Gearchiveerd</option>
+                </select>
+                <small class="text-muted ml-2">(Toont: <?php echo $result->num_rows; ?> bedrijven)</small>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
 <?php if ($bedrijf_id && isset($bedrijf)): ?>
     <table class="table table-striped mt-3">
         <thead>
@@ -103,6 +131,7 @@ if ($bedrijf_id) {
                 <th>Bedrijfsnaam</th>
                 <th>Adres</th>
                 <th>Contact</th>
+                <th>Status</th>
                 <th>Acties</th>
             </tr>
         </thead>
@@ -128,13 +157,14 @@ if ($bedrijf_id) {
                     }
                     
                     echo "</td>
+                            <td>" . FormHelpers::createStatusBadge($row["status"], 'bedrijf') . "</td>
                             <td>
                                 <a href='update_bedrijf.php?id=" . $row["id"] . "' class='btn btn-sm btn-primary'>Bewerken</a>
                             </td>
                           </tr>";
                 }
             } else {
-                echo "<tr><td colspan='4'>0 results</td></tr>";
+                echo "<tr><td colspan='5'>Geen bedrijven gevonden met status: " . htmlspecialchars($status_filter) . "</td></tr>";
             }
             $conn->close();
             ?>

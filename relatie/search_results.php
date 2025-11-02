@@ -2,6 +2,7 @@
 define('SECURE', true);
 include '../config/db_connect.php';
 include '../config/phone_number_formatter.php';
+include '../config/form_helpers.php';
 include '../includes/header.php';
 
 $formatter = new PhoneNumberFormatter();
@@ -234,17 +235,19 @@ if ($selected_bedrijf) {
     if ($search_situation == 'unique_company' && !empty($klanten_results)) {
         // Situatie 2: Exclusief gevonden werknemers van collega's lijst (ze zijn nu geleegd voor display)
         // Maar dit scenario komt niet voor omdat klanten_results leeg is in situatie 2
-        $werknemers_sql = "SELECT klanten.*, functies.functienaam 
+        $werknemers_sql = "SELECT klanten.*, functies.functienaam, bedrijven.bedrijfsnaam, bedrijven.land 
                            FROM klanten 
                            JOIN functies ON klanten.functie_id = functies.id 
+                           JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id
                            WHERE klanten.bedrijf_id = ?";
         $werknemers_stmt = $conn->prepare($werknemers_sql);
         $werknemers_stmt->bind_param("i", $selected_bedrijf['id']);
     } else {
         // Situatie 1 of geen gevonden werknemers: toon alle collega's (inclusief gevonden personen)
-        $werknemers_sql = "SELECT klanten.*, functies.functienaam 
+        $werknemers_sql = "SELECT klanten.*, functies.functienaam, bedrijven.bedrijfsnaam, bedrijven.land 
                            FROM klanten 
                            JOIN functies ON klanten.functie_id = functies.id 
+                           JOIN bedrijven ON klanten.bedrijf_id = bedrijven.id
                            WHERE klanten.bedrijf_id = ?";
         $werknemers_stmt = $conn->prepare($werknemers_sql);
         $werknemers_stmt->bind_param("i", $selected_bedrijf['id']);
@@ -654,7 +657,12 @@ if ($selected_bedrijf) {
                         <h6 class="mt-4">👤 Werknemers</h6>
                         <?php foreach ($klanten_results as $klant): ?>
                             <div class="search-result-item" onclick="selectSpecificResult('person', <?php echo $klant['id']; ?>)">
-                                <div class="result-title"><?php echo htmlspecialchars($klant['voornaam'], ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($klant['achternaam'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                <div class="result-title">
+                                    <?php echo htmlspecialchars($klant['voornaam'], ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($klant['achternaam'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php if (isset($klant['status'])): ?>
+                                        <?php echo FormHelpers::createStatusBadge($klant['status'], 'klant'); ?>
+                                    <?php endif; ?>
+                                </div>
                                 <div class="result-subtitle">
                                     💼 <?php echo htmlspecialchars($klant['functienaam'], ENT_QUOTES, 'UTF-8'); ?> bij 
                                     <span class="company-link" onclick="event.stopPropagation(); selectSpecificResult('company', <?php echo $klant['bedrijf_id']; ?>)">
@@ -727,11 +735,19 @@ if ($selected_bedrijf) {
                                     </a>
                                 </div>
                                 <?php endif; ?>
-                                <?php if (!empty($selected_bedrijf['notities'])): ?>
+                                <?php if (!empty($selected_bedrijf['notities']) && $selected_bedrijf['notities'] !== '0'): ?>
                                 <div class="bedrijf-notes">
                                     📝 <?php echo nl2br(htmlspecialchars($selected_bedrijf['notities'], ENT_QUOTES, 'UTF-8')); ?>
                                 </div>
                                 <?php endif; ?>
+                                
+                                <!-- Bewerken knop -->
+                                <div class="mt-3 mb-3">
+                                    <a href="../bedrijf/update_bedrijf.php?id=<?php echo $selected_bedrijf['id']; ?>" class="btn btn-primary btn-sm">
+                                        ✏️ Bedrijf bewerken
+                                    </a>
+                                </div>
+                                
                                 <div class="mt-3">
                                     <small class="text-muted">
                                         <strong><?php echo count($bedrijf_werknemers); ?></strong> 
@@ -760,6 +776,9 @@ if ($selected_bedrijf) {
                                         <div class="werknemer-name">
                                             <?php echo htmlspecialchars($werknemer['voornaam'], ENT_QUOTES, 'UTF-8') . " " . 
                                                       htmlspecialchars($werknemer['achternaam'], ENT_QUOTES, 'UTF-8'); ?>
+                                            <?php if (isset($werknemer['status'])): ?>
+                                                <?php echo FormHelpers::createStatusBadge($werknemer['status'], 'klant'); ?>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="werknemer-functie">
                                             <?php echo htmlspecialchars($werknemer['functienaam'], ENT_QUOTES, 'UTF-8'); ?>
@@ -790,7 +809,12 @@ if ($selected_bedrijf) {
                                 <?php 
                                 $first_klant = $klanten_results[0];
                                 ?>
-                                <h5><?php echo htmlspecialchars($first_klant['voornaam'], ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($first_klant['achternaam'], ENT_QUOTES, 'UTF-8'); ?></h5>
+                                <h5>
+                                    <?php echo htmlspecialchars($first_klant['voornaam'], ENT_QUOTES, 'UTF-8') . ' ' . htmlspecialchars($first_klant['achternaam'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php if (isset($first_klant['status'])): ?>
+                                        <?php echo FormHelpers::createStatusBadge($first_klant['status'], 'klant'); ?>
+                                    <?php endif; ?>
+                                </h5>
                                 
                                 <div class="row">
                                     <div class="col-md-6">
@@ -824,10 +848,10 @@ if ($selected_bedrijf) {
                                     </div>
                                 </div>
                                 
-                                <?php if (!empty($first_klant['notities'])): ?>
+                                <?php if (!empty($first_klant['notities']) && $first_klant['notities'] !== '0'): ?>
                                     <div class="mt-3">
                                         <div class="detail-label">Notities</div>
-                                        <div class="detail-value"><?php echo htmlspecialchars($first_klant['notities'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                        <div class="detail-value"><?php echo nl2br(htmlspecialchars($first_klant['notities'], ENT_QUOTES, 'UTF-8')); ?></div>
                                     </div>
                                 <?php endif; ?>
                                 
@@ -900,9 +924,37 @@ if ($selected_bedrijf) {
         }
         
         function showWerknemerDetailsContent(werknemerData) {
+            // Functie om status badge HTML te genereren
+            function getStatusBadge(status) {
+                if (!status) return '';
+                
+                let badgeClass = 'badge ';
+                switch(status) {
+                    case 'Actief':
+                        badgeClass += 'badge-success';
+                        break;
+                    case 'Prospect':
+                        badgeClass += 'badge-info';
+                        break;
+                    case 'Inactief':
+                    case 'Uit dienst':
+                        badgeClass += 'badge-warning';
+                        break;
+                    case 'Gesloten':
+                        badgeClass += 'badge-secondary';
+                        break;
+                    case 'Gearchiveerd':
+                        badgeClass += 'badge-danger';
+                        break;
+                    default:
+                        badgeClass += 'badge-secondary';
+                }
+                return `<span class="${badgeClass}">${status}</span>`;
+            }
+            
             const detailsPanel = document.getElementById('werknemerDetails');
             detailsPanel.innerHTML = `
-                <h5>${werknemerData.voornaam} ${werknemerData.achternaam}</h5>
+                <h5>${werknemerData.voornaam} ${werknemerData.achternaam} ${getStatusBadge(werknemerData.status)}</h5>
                 
                 <div class="row">
                     <div class="col-md-6">
@@ -935,7 +987,7 @@ if ($selected_bedrijf) {
                     </div>
                 </div>
                 
-                ${werknemerData.notities ? `
+                ${werknemerData.notities && werknemerData.notities !== '0' && werknemerData.notities.trim() !== '' ? `
                     <div class="mt-3">
                         <div class="detail-label">Notities</div>
                         <div class="detail-value">${werknemerData.notities}</div>

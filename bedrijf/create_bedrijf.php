@@ -20,6 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $website = isset($_POST['website']) ? trim($_POST['website']) : '';
     $telefoonnummer = isset($_POST['telefoonnummer']) ? trim($_POST['telefoonnummer']) : '';
     $notities = isset($_POST['notities']) ? trim($_POST['notities']) : '';
+    $status = isset($_POST['status']) ? trim($_POST['status']) : 'Actief';
 
     // Valideer verplichte velden
     if (empty($bedrijfsnaam)) {
@@ -40,12 +41,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Voorbereiden van een SQL statement
-        $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen, website, telefoonnummer, notities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO bedrijven (bedrijfsnaam, straat, huisnummer, postcode, woonplaats, land, email_facturen, website, telefoonnummer, notities, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
         if ($stmt === false) {
             $error_message = "Database fout bij prepare: " . htmlspecialchars($conn->error);
         } else {
-            $stmt->bind_param("ssssssssss", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities);
+            $stmt->bind_param("sssssssssss", $bedrijfsnaam, $straat, $huisnummer, $postcode, $woonplaats, $land, $email_facturen, $website, $telefoonnummer, $notities, $status);
 
             // Uitvoeren van het statement
             if ($stmt->execute()) {
@@ -139,6 +140,9 @@ echo FormHelpers::createRequiredFieldsInfo();
     </div>
     
     <?php echo FormHelpers::createTextarea('notities', 'Notities', false, '', 4, 'Vrije notities en opmerkingen over dit bedrijf...'); ?>
+    
+    <?php echo FormHelpers::createBedrijfStatusSelect(true, 'Actief'); ?>
+    
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
