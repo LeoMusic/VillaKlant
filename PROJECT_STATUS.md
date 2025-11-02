@@ -2,10 +2,45 @@
 
 *Voor het snel oppakken van de draad in toekomstige development sessies*
 
-## 📊 **HUIDIGE STATUS (31 oktober 2025)**
+## 📊 **HUIDIGE STATUS (2 november 2025)**
 
 ### **🟢 PROJECT STATUS: PRODUCTIE-KLAAR MET UITGEBREIDE FUNCTIONALITEIT**
 Het VillaKlant systeem is **volledig functioneel** met alle kernfunctionaliteiten en vele verbeteringen.
+
+### **🚧 IN ONTWIKKELING (2 november):**
+**Soft Delete & Status Management Systeem**
+
+#### **Doel:**
+Professioneel CRM status systeem implementeren met soft delete functionaliteit voor betere data management en rapportage mogelijkheden.
+
+#### **Database Wijzigingen:**
+**Bedrijven Statussen:**
+- `Actief` - Actieve klant/relatie (default)
+- `Prospect` - Potentiële klant, nog geen contract
+- `Inactief` - Tijdelijk geen business (seizoen, project pauze)
+- `Gesloten` - Bedrijf bestaat niet meer/failliet
+- `Gearchiveerd` - Soft deleted, niet tonen maar data bewaren
+
+**Klanten Statussen:**
+- `Actief` - Huidige werknemer/contact (default)
+- `Inactief` - Tijdelijk niet bereikbaar (verlof, project pauze)
+- `Uit dienst` - Niet meer werkzaam bij bedrijf
+- `Gearchiveerd` - Soft deleted, niet tonen maar data bewaren
+
+#### **Functionaliteit:**
+1. **Database schema update** - Status kolommen toevoegen
+2. **Update formulieren** - Status dropdown in update_klant.php en update_bedrijf.php
+3. **Read views filtering** - Standaard alleen "Actief" tonen
+4. **Soft delete buttons** - "Archiveren" knop naast "Verwijderen"
+5. **Status indicators** - Visuele badges in lijstweergaven
+6. **Archive view** - Aparte pagina voor gearchiveerde records
+7. **Restore functie** - Gearchiveerde items terugzetten
+
+#### **Business Logic:**
+- **Gearchiveerd**: Niet tonen in dropdowns, zoekresultaten of standaard views
+- **Uit dienst/Gesloten**: Wel tonen maar met visuele indicator (badge)
+- **Inactief**: Tonen met waarschuwing
+- **Prospect**: Speciale indicator voor sales opportunities
 
 ### **✅ RECENT VOLTOOID (28-31 oktober):**
 1. **PhoneNumberFormatter Fix** - format() method toegevoegd voor compatibility
